@@ -36,7 +36,7 @@ namespace ManejoAlquileres.Controllers
                 .Where(pu => pu.UsuarioId == userId)
                 .Select(pu => pu.Propiedad)
                 .ToListAsync();
-
+            
             var propiedadIds = propiedades.Select(p => p.Id_propiedad).ToList();
 
             var habitaciones = (await _servicio.ObtenerTodas())

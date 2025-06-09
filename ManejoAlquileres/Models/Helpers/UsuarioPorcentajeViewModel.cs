@@ -2,9 +2,9 @@
 {
     public class UsuarioPorcentajeViewModel
     {
-        public string UsuarioId { get; set; }  // Para la edición/guardado
-        public string NIF { get; set; }        // DNI del usuario
-        public string NombreCompleto { get; set; }  // Nombre + Apellidos para mostrar
+        public string UsuarioId { get; set; }
+        public string NIF { get; set; }
+        public string NombreCompleto { get; set; }
         public decimal Porcentaje { get; set; }
     }
 }

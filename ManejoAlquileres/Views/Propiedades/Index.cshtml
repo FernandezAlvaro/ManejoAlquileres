@@ -1,0 +1,117 @@
+﻿@model ManejoAlquileres.Models.Helpers.PropiedadesIndexViewModel
+@using Microsoft.AspNetCore.Identity
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Mis Propiedades";
+    var isAdmin = User?.IsInRole("Administrador") ?? false;
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Mis Propiedades</h1>
+
+    @if (isAdmin)
+    {
+        <div class="mb-3">
+            <a asp-action="VerTodas" class="btn btn-outline-primary">Ver todas las propiedades</a>
+        </div>
+    }
+
+    <div class="mb-4">
+        <a asp-action="Crear" class="btn btn-success">+ Añadir nueva propiedad</a>
+    </div>
+
+    <div class="mb-5">
+        <h3>Propiedades Propias</h3>
+
+        @if (!Model.PropiedadesPropias.Any())
+        {
+            <p>No tienes propiedades registradas.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Dirección</th>
+                            <th>Referencia Catastral</th>
+                            <th>Habitaciones</th>
+                            <th>Valor Adquisición</th>
+                            <th>Porcentaje</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var propiedad in Model.PropiedadesPropias)
+                        {
+                            <tr>
+                                <td>@propiedad.Direccion</td>
+                                <td>@propiedad.ReferenciaCatastral</td>
+                                <td>@(propiedad.NumHabitaciones)</td>
+                                <td>@propiedad.ValorAdquisicion.ToString("N2")</td>
+                                <td>@($"{propiedad.PorcentajePropiedad / 100:P}")</td>
+                                <td>@(propiedad.EstadoPropiedad ? "Disponible" : "No disponible")</td>
+                                <td class="text-center">
+                                    <a asp-action="Detalles" asp-route-id="@propiedad.Id" class="btn btn-sm btn-info me-1">Ver</a>
+                                    <a asp-action="Editar" asp-route-id="@propiedad.Id" class="btn btn-sm btn-warning me-1">Editar</a>
+                                    <a asp-action="ConfirmarBorrado" asp-route-id="@propiedad.Id" class="btn btn-sm btn-danger me-1">Eliminar</a>
+
+                                    <a asp-action="CrearHabitacion" asp-route-propiedadId="@propiedad.Id" class="btn btn-sm btn-primary me-1">+ Habitación</a>
+
+                                    <a asp-action="CrearGasto" asp-route-propiedadId="@propiedad.Id" class="btn btn-sm btn-secondary">+ Gasto</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="mb-5">
+        <h3>Propiedades Alquiladas</h3>
+
+        @if (!Model.PropiedadesAlquiladas.Any())
+        {
+            <p>No estás alquilando ninguna propiedad actualmente.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Dirección</th>
+                            <th>Tipo de Alquiler</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Periodicidad</th>
+                            <th>Fianza</th>
+                            <th>Habitación</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var alquiler in Model.PropiedadesAlquiladas)
+                        {
+                            <tr>
+                                <td>@alquiler.Direccion</td>
+                                <td>@alquiler.TipoAlquiler</td>
+                                <td>@alquiler.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                <td>@alquiler.FechaFin.ToString("dd/MM/yyyy")</td>
+                                <td>@alquiler.Periodicidad</td>
+                                <td>@alquiler.Fianza.ToString("N2")</td>
+                                <td>@(alquiler.EsHabitacion ? "Sí" : "No")</td>
+                                <td class="text-center">
+                                    <a asp-action="Detalles" asp-route-id="@alquiler.PropiedadId" class="btn btn-sm btn-info">Ver</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

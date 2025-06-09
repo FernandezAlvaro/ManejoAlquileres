@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ManejoAlquileres.Models.GastoInmueble>
+@{
+    var propiedadId = ViewBag.PropiedadId as string;
+    var nombrePropiedad = ViewBag.NombrePropiedad as string;
+}
+
+<h2>Gastos de @nombrePropiedad</h2>
+
+<a asp-action="Crear" asp-route-propiedadId="@propiedadId" class="btn btn-primary">Nuevo Gasto</a>
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Descripción</th>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Fecha de Pago</th>
+            <th>Repercutible</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gasto in Model)
+        {
+            <tr>
+                <td>@gasto.Descripcion</td>
+                <td>@gasto.Tipo_gasto</td>
+                <td>@gasto.Monto_gasto €</td>
+                <td>@gasto.Fecha_pago.ToShortDateString()</td>
+                <td>@(gasto.Repercutible ? "Sí" : "No")</td>
+                <td>
+                    <a asp-action="Editar" asp-route-id="@gasto.Id_gasto" class="btn btn-sm btn-warning">Editar</a>
+                    <a asp-action="Eliminar" asp-route-id="@gasto.Id_gasto" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

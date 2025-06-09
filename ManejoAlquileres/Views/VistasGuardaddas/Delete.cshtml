@@ -1,0 +1,26 @@
+﻿@model ManejoAlquileres.Models.Usuario
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<h2 class="text-danger mb-4">¿Estás seguro de eliminar este usuario?</h2>
+
+<div class="row g-3">
+    <dl class="row">
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">@Model.Nombre</dd>
+
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.Email</dd>
+
+        <dt class="col-sm-3">Administrador</dt>
+        <dd class="col-sm-9">@(Model.EsAdministrador ? "Sí" : "No")</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post" class="mt-3">
+        <input type="hidden" asp-for="Id_usuario" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

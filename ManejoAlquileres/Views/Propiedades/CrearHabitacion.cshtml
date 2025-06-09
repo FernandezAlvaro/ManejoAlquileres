@@ -1,0 +1,42 @@
+﻿@model ManejoAlquileres.Models.Habitacion
+
+@{
+    ViewData["Title"] = "Añadir Habitación";
+}
+
+<h2 class="mt-4">Añadir Habitación</h2>
+
+<form asp-action="CrearHabitacion" method="post">
+    <input type="hidden" asp-for="Id_propiedad" />
+
+    <div class="mb-3">
+        <label asp-for="Tamaño" class="form-label"></label>
+        <input asp-for="Tamaño" class="form-control" />
+        <span asp-validation-for="Tamaño" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label"></label>
+        <textarea asp-for="Descripcion" class="form-control"></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-2">
+        <input asp-for="Disponible" class="form-check-input" />
+        <label asp-for="Disponible" class="form-check-label"></label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Bano_propio" class="form-check-input" />
+        <label asp-for="Bano_propio" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar habitación</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

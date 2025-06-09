@@ -1,0 +1,154 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var user = HttpContextAccessor.HttpContext?.User;
+    bool estaAutenticado = user?.Identity?.IsAuthenticated ?? false;
+
+    var claimAdmin = user?.Claims.FirstOrDefault(c => c.Type == "esAdministrador");
+    string valorClaim = claimAdmin?.Value ?? "No tiene claim";
+
+    bool esAdmin = false;
+    if (claimAdmin != null)
+    {
+        if (valorClaim.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+            valorClaim == "1" || valorClaim.Equals("sí", StringComparison.OrdinalIgnoreCase))
+        {
+            esAdmin = true;
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - ManejoAlquileres</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="d-flex" style="min-height: 100vh;">
+
+        @if (estaAutenticado)
+        {
+            <div class="bg-dark text-white p-3" id="sidebar" style="width: 250px;">
+                <h4 class="text-white mb-4">ManejoAlquileres</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+
+                    @* Solo admins pueden ver esta opción *@
+                    @if (esAdmin)
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="nav-link text-white" asp-controller="Usuarios" asp-action="Index">
+                                <i class="bi bi-people"></i> Usuarios
+                            </a>
+                        </li>
+                    }
+
+                    @* Menú normal para todos los usuarios autenticados *@
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" data-bs-toggle="collapse" href="#propiedadesCollapse">
+                            <i class="bi bi-building"></i> Propiedades
+                        </a>
+                        <ul class="collapse ps-3" id="propiedadesCollapse">
+                            <li>
+                                <a class="nav-link text-white" asp-controller="Propiedades" asp-action="Index">Ver Propiedades</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-white" asp-controller="Habitaciones" asp-action="Index">Habitaciones</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-white" asp-controller="GastosInmueble" asp-action="Index">Gastos Inmueble</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" data-bs-toggle="collapse" href="#contratosCollapse">
+                            <i class="bi bi-file-earmark-text"></i> Contratos
+                        </a>
+                        <ul class="collapse ps-3" id="contratosCollapse">
+                            <li>
+                                <a class="nav-link text-white" asp-controller="Contratos" asp-action="Index">Ver Contratos</a>
+                            </li>
+                            <li>
+                                <a class="nav-link text-white" asp-controller="Pagos" asp-action="Index">Pagos</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item mt-4">
+                        <a class="nav-link text-white" asp-controller="Home" asp-action="Privacy">
+                            <i class="bi bi-shield-lock"></i> Privacidad
+                        </a>
+                    </li>
+
+                    <li class="nav-item mt-4">
+                        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                            <button type="submit" class="btn btn-outline-light w-100">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        }
+
+        <div class="flex-fill bg-light">
+            <header class="bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <button class="btn btn-outline-secondary me-3" id="toggleSidebar">
+                            <i class="bi bi-list"></i>
+                        </button>
+                    }
+                    <h5 class="mb-0">@ViewData["Title"]</h5>
+                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <span class="text-muted">Bienvenido, @User.Identity.Name</span>
+                }
+            </header>
+
+            <main class="container-fluid p-4">
+                @RenderBody()
+            </main>
+
+            <footer class="bg-white border-top text-center py-3 text-muted">
+                &copy; 2025 - ManejoAlquileres
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const toggleButton = document.getElementById("toggleSidebar");
+        const sidebar = document.getElementById("sidebar");
+
+        if (toggleButton) {
+            toggleButton.addEventListener("click", function () {
+                if (sidebar.style.display === "none") {
+                    sidebar.style.display = "block";
+                } else {
+                    sidebar.style.display = "none";
+                }
+
+                // Ajustar tamaño del calendario cuando cambia el sidebar
+                if (calendar) {
+                    calendar.updateSize();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

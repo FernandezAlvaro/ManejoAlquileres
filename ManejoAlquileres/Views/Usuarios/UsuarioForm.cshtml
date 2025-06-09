@@ -1,0 +1,86 @@
+﻿@model ManejoAlquileres.Models.Usuario
+
+@{
+    var modo = ViewBag.Modo as string ?? "Crear";
+    var esLectura = modo == "Eliminar";
+    var titulo = modo == "Editar" ? "Editar Usuario"
+               : modo == "Eliminar" ? "Eliminar Usuario"
+               : "Crear Usuario";
+    var botonTexto = modo == "Eliminar" ? "Eliminar" : "Guardar";
+    var botonClase = modo == "Eliminar" ? "btn-danger" : "btn-success";
+    var formAction = modo == "Eliminar" ? "DeleteConfirmed" : modo;
+
+    var readonlyAttr = esLectura ? "readonly" : null;
+    var disabledAttr = esLectura ? "disabled" : null;
+}
+
+<h2 class="mb-4">@titulo</h2>
+
+<form asp-action="@formAction" method="post">
+    @if (modo != "Crear")
+    {
+        <input type="hidden" asp-for="Id_usuario" />
+    }
+
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Apellidos" class="form-label"></label>
+        <input asp-for="Apellidos" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Apellidos" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Contraseña" class="form-label"></label>
+        <input asp-for="Contraseña" class="form-control" type="text" readonly="@esLectura" />
+        <span asp-validation-for="Contraseña" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NIF" class="form-label"></label>
+        <input asp-for="NIF" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="NIF" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Direccion" class="form-label"></label>
+        <input asp-for="Direccion" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Direccion" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Telefono" class="form-label"></label>
+        <input asp-for="Telefono" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Telefono" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Informacion_bancaria" class="form-label"></label>
+        <input asp-for="Informacion_bancaria" class="form-control" readonly="@esLectura" />
+        <span asp-validation-for="Informacion_bancaria" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-4">
+        <input asp-for="EsAdministrador" class="form-check-input" type="checkbox" disabled="@esLectura" />
+        <label asp-for="EsAdministrador" class="form-check-label"></label>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn @botonClase">@botonTexto</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,64 @@
+﻿@model IEnumerable<ManejoAlquileres.Models.Habitacion>
+@{
+    var propiedades = ViewBag.Propiedades as Dictionary<string, ManejoAlquileres.Models.Propiedad>;
+    ViewData["Title"] = "Habitaciones";
+}
+
+<h2>Habitaciones</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay habitaciones registradas.</div>
+}
+else
+{
+    <button class="btn btn-secondary mb-3" onclick="ordenarPorPropiedad()">Ordenar por Propiedad</button>
+
+    <table class="table table-bordered" id="tablaHabitaciones">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Propiedad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var habitacion in Model)
+            {
+                var propiedad = propiedades[habitacion.Id_propiedad];
+                <tr>
+                    <td>@habitacion.Tamaño</td>
+                    <td>@habitacion.Descripcion</td>
+                    <td>
+                        <strong>@propiedad.Referencia_catastral</strong><br />
+                        @propiedad.Direccion
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-action="Editar" asp-route-id="@habitacion.Id_habitacion">Editar</a>
+                        <form asp-action="Eliminar" asp-route-id="@habitacion.Id_habitacion" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas eliminar esta habitación?')">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        function ordenarPorPropiedad() {
+            const tabla = document.getElementById("tablaHabitaciones").getElementsByTagName("tbody")[0];
+            const filas = Array.from(tabla.rows);
+
+            filas.sort((a, b) => {
+                const propiedadA = a.cells[2].innerText.toLowerCase();
+                const propiedadB = b.cells[2].innerText.toLowerCase();
+                return propiedadA.localeCompare(propiedadB);
+            });
+
+            filas.forEach(fila => tabla.appendChild(fila));
+        }
+    </script>
+}

@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "No Autorizado";
+}
+
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100 px-3 text-center">
+    <div class="alert alert-danger w-100" style="max-width: 400px;">
+        <h2 class="mb-3">Acceso denegado</h2>
+        <p>No tienes permisos para acceder a esta propiedad o acción.</p>
+        <a href="@Url.Action("Login", "Cuenta")" class="btn btn-primary mt-3 w-100">Volver al inicio</a>
+    </div>
+</div>

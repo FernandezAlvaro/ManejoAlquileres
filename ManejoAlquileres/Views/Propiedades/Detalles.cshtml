@@ -1,0 +1,143 @@
+﻿@model ManejoAlquileres.Models.Helpers.PropiedadViewModel
+
+@{
+    ViewData["Title"] = "Detalles de la Propiedad";
+}
+
+<div class="container my-4">
+    <h2 class="mb-4 text-center">@ViewData["Title"]</h2>
+
+    @* Mostrar mensajes de éxito o error *@
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            @TempData["MensajeExito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 fw-bold">@Model.Direccion</h5>
+
+                    <dl class="row">
+                        <dt class="col-sm-5">Referencia Catastral:</dt>
+                        <dd class="col-sm-7">@Model.ReferenciaCatastral</dd>
+
+                        <dt class="col-sm-5">Habitaciones:</dt>
+                        <dd class="col-sm-7">@((Model.NumHabitaciones).ToString())</dd>
+
+                        <dt class="col-sm-5">Estado:</dt>
+                        <dd class="col-sm-7">@(Model.EstadoPropiedad ? "Disponible" : "No disponible")</dd>
+
+                        <dt class="col-sm-5">Valor Catastral Piso:</dt>
+                        <dd class="col-sm-7">@Model.ValorCatastralPiso.ToString("N2") €</dd>
+
+                        <dt class="col-sm-5">Valor Catastral Terreno:</dt>
+                        <dd class="col-sm-7">@Model.ValorCatastralTerreno.ToString("N2") €</dd>
+
+                        <dt class="col-sm-5">Fecha Adquisición:</dt>
+                        <dd class="col-sm-7">@Model.FechaAdquisicion.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-5">Valor Adquisición:</dt>
+                        <dd class="col-sm-7">@Model.ValorAdquisicion.ToString("N2") €</dd>
+
+                        <dt class="col-sm-5">Valor Adquisición Total:</dt>
+                        <dd class="col-sm-7">@Model.ValorAdquisicionTotal.ToString("N2") €</dd>
+
+                        <dt class="col-sm-5">Porcentaje de Propiedad:</dt>
+                        <dd class="col-sm-7">@($"{ViewBag.PorcentajePropiedad:P}")</dd>
+
+                        <dt class="col-sm-5">Descripción:</dt>
+                        <dd class="col-sm-7">@Model.Descripcion</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @* Tabla de habitaciones asociadas *@
+            <div class="mt-5">
+                <h4>Habitaciones</h4>
+
+                @if (Model.Habitaciones != null && Model.Habitaciones.Any())
+                {
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Tamaño</th>
+                                    <th>Descripción</th>
+                                    <th>Baño propio</th>
+                                    <th>Disponible</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var h in Model.Habitaciones)
+                                {
+                                    <tr>
+                                        <td>@h.Tamaño m²</td>
+                                        <td>@h.Descripcion</td>
+                                        <td>@(h.Bano_propio ? "Sí" : "No")</td>
+                                        <td>@(h.Disponible ? "Sí" : "No")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="mt-3"><em>Esta propiedad aún no tiene habitaciones registradas.</em></p>
+                }
+            </div>
+
+            @* Tabla de gastos del inmueble *@
+            <div class="mt-5">
+                <h4>Gastos del Inmueble</h4>
+
+                @if (Model.GastosInmueble != null && Model.GastosInmueble.Any())
+                {
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Importe</th>
+                                    <th>Fecha</th>
+                                    <th>Notas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var gasto in Model.GastosInmueble)
+                                {
+                                    <tr>
+                                        <td>@gasto.Tipo_gasto</td>
+                                        <td>@gasto.Monto_gasto.ToString("N2") €</td>
+                                        <td>@gasto.Fecha_pago.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="mt-3"><em>Esta propiedad aún no tiene gastos registrados.</em></p>
+                }
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-secondary">Volver al listado</a>
+                <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+            </div>
+        </div>
+    </div>
+</div>

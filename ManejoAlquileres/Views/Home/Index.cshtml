@@ -1,0 +1,18 @@
+﻿<link href="~/lib/fullcalendar/main.min.css" rel="stylesheet" asp-append-version="true" />
+<script src="~/lib/fullcalendar/main.min.js" asp-append-version="true"></script>
+
+<div id="calendar" class="mt-4"></div>
+
+<script>
+    var calendar; // Variable global o en scope adecuado
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            events: @Html.Raw(ViewBag.EventosJson)
+        });
+        calendar.render();
+    });
+</script>

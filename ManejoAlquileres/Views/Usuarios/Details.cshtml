@@ -1,0 +1,40 @@
+﻿@model ManejoAlquileres.Models.Usuario
+
+@{
+    ViewData["Title"] = "Detalles del Usuario";
+}
+
+<h2 class="mb-4">Detalles del Usuario</h2>
+
+<div class="container" style="max-width: 600px;">
+    <dl class="row">
+        <dt class="col-12 col-sm-4 fw-semibold">Nombre</dt>
+        <dd class="col-12 col-sm-8">@Model.Nombre</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Apellidos</dt>
+        <dd class="col-12 col-sm-8">@Model.Apellidos</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Email</dt>
+        <dd class="col-12 col-sm-8">@Model.Email</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">NIF</dt>
+        <dd class="col-12 col-sm-8">@Model.NIF</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Dirección</dt>
+        <dd class="col-12 col-sm-8">@Model.Direccion</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Teléfono</dt>
+        <dd class="col-12 col-sm-8">@Model.Telefono</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Administrador</dt>
+        <dd class="col-12 col-sm-8">@(Model.EsAdministrador ? "Sí" : "No")</dd>
+
+        <dt class="col-12 col-sm-4 fw-semibold">Información Bancaria</dt>
+        <dd class="col-12 col-sm-8">@Model.Informacion_bancaria</dd>
+    </dl>
+
+    <div class="d-flex flex-column flex-sm-row gap-2 mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id_usuario" class="btn btn-warning flex-fill flex-sm-grow-0">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary flex-fill flex-sm-grow-0">Volver</a>
+    </div>
+</div>

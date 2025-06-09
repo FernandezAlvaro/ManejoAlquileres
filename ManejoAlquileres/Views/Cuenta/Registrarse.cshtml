@@ -1,0 +1,80 @@
+﻿@model ManejoAlquileres.Models.Usuario
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="text-center mb-4">Registro de Usuario</h2>
+
+            <form asp-controller="Cuenta" asp-action="Register" method="post">
+                <div class="form-group mb-3">
+                    <label asp-for="Nombre"></label>
+                    <input asp-for="Nombre" class="form-control" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Apellidos"></label>
+                    <input asp-for="Apellidos" class="form-control" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="NIF">DNI (NIF)</label>
+                    <input asp-for="NIF" class="form-control" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Direccion"></label>
+                    <input asp-for="Direccion" class="form-control" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Telefono"></label>
+                    <input asp-for="Telefono" class="form-control" required pattern="[0-9]{9}" title="Introduce un número de 9 dígitos" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" type="email" required />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Informacion_bancaria">Información Bancaria (IBAN)</label>
+                    <input asp-for="Informacion_bancaria" class="form-control" required />
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Contraseña"></label>
+                    <div class="input-group">
+                        <input asp-for="Contraseña" class="form-control" type="password" required id="passwordInput" />
+                        <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">Ver</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Registrarse</button>
+
+                <div class="mt-4 text-center">
+                    <a asp-controller="Cuenta" asp-action="Login">¿Ya tienes cuenta? Inicia sesión</a>
+                </div>
+            </form>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger mt-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById("passwordInput");
+        passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    }
+</script>

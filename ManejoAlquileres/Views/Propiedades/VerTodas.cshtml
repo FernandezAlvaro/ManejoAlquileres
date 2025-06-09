@@ -1,0 +1,55 @@
+﻿@model List<ManejoAlquileres.Models.Helpers.PropiedadAdminViewModel>
+
+@{
+    ViewData["Title"] = "Todas las Propiedades";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Listado de Todas las Propiedades</h1>
+
+    @if (!Model.Any())
+    {
+        <p>No hay propiedades registradas.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Dirección</th>
+                        <th>Referencia Catastral</th>
+                        <th>Valor Adquisición</th>
+                        <th>Estado</th>
+                        <th>Usuarios y Porcentajes</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var propiedad in Model)
+                    {
+                        <tr>
+                            <td>@propiedad.Direccion</td>
+                            <td>@propiedad.ReferenciaCatastral</td>
+                            <td>@propiedad.ValorAdquisicion.ToString("N2") €</td>
+                            <td>@(propiedad.EstadoPropiedad ? "Disponible" : "No disponible")</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    @foreach (var porcentaje in propiedad.PorcentajesUsuarios)
+                                    {
+                                        <li><strong>@porcentaje.NIF - @porcentaje.NombreCompleto:</strong> @($"{porcentaje.Porcentaje / 100:P}")</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Detalles" asp-route-id="@propiedad.Id" class="btn btn-sm btn-info me-1">Ver</a>
+                                <a asp-action="Editar" asp-route-id="@propiedad.Id" class="btn btn-sm btn-warning me-1">Editar</a>
+                                <a asp-action="ConfirmarBorrado" asp-route-id="@propiedad.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

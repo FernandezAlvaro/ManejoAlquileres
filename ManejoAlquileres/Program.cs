@@ -48,7 +48,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser());
 });
 
-// Aquí debes registrar tus servicios e interfaces, por ejemplo:
+// Aquí registro mis servicios e interfaces:
 builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioCuenta, ServicioCuenta>();
 builder.Services.AddScoped<IServicioContrato, ServicioContrato>();

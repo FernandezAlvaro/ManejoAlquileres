@@ -91,7 +91,6 @@ namespace ManejoAlquileres.Controllers
 
             var usuarioId = ObtenerUsuarioId();
 
-            // Verificar si ya existe propiedad con la misma referencia catastral
             var propiedadExistente = await _context.Propiedades
                 .Include(p => p.Usuarios)
                 .FirstOrDefaultAsync(p => p.Referencia_catastral == vm.ReferenciaCatastral);
@@ -103,7 +102,6 @@ namespace ManejoAlquileres.Controllers
 
                 if (relacionExistente != null)
                 {
-                    // Usuario ya tiene relación con esa propiedad
                     ModelState.AddModelError(string.Empty, "Ya tienes una relación con esta propiedad.");
                     return View(vm);
                 }
@@ -118,7 +116,6 @@ namespace ManejoAlquileres.Controllers
                     return View(vm);
                 }
 
-                // Crear nueva relación propiedad-usuario con porcentaje
                 var nuevaRelacion = new PropiedadUsuario
                 {
                     PropiedadId = propiedadExistente.Id_propiedad,
@@ -133,7 +130,6 @@ namespace ManejoAlquileres.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Si no existe la propiedad, crearla nueva con la relación
             var propiedadNueva = new Propiedad
             {
                 Id_propiedad = await _generadorIdsService.GenerarIdUnicoAsync(),
@@ -185,7 +181,7 @@ namespace ManejoAlquileres.Controllers
             var relacion = propiedad.Usuarios.FirstOrDefault(r => r.UsuarioId == usuarioId);
 
             if (relacion == null)
-                return Forbid(); // Usuario no tiene acceso a esta propiedad
+                return Forbid();
 
             var vm = MapearPropiedadAViewModel(propiedad, relacion.PorcentajePropiedad);
 
@@ -215,7 +211,6 @@ namespace ManejoAlquileres.Controllers
             if (relacion == null)
                 return Forbid();
 
-            // Verificar si la referencia catastral está usada por otra propiedad (excluyendo esta)
             bool existeRef = await _context.Propiedades
                 .AnyAsync(p => p.Referencia_catastral == vm.ReferenciaCatastral && p.Id_propiedad != id);
 
@@ -225,9 +220,7 @@ namespace ManejoAlquileres.Controllers
                 return View(vm);
             }
 
-            // Actualizar porcentaje
             decimal nuevoPorcentaje = (decimal)(vm.PorcentajePropiedad / 100);
-            // Verificar que la suma de porcentajes no exceda 1 (100%)
             var sumaOtrosPorcentajes = propiedad.Usuarios
                 .Where(r => r.UsuarioId != usuarioId)
                 .Sum(r => r.PorcentajePropiedad);
@@ -238,7 +231,6 @@ namespace ManejoAlquileres.Controllers
                 return View(vm);
             }
 
-            // Actualizar propiedad y relación
             relacion.PorcentajePropiedad = nuevoPorcentaje;
             _context.PropiedadesUsuarios.Update(relacion);
 
@@ -419,9 +411,6 @@ namespace ManejoAlquileres.Controllers
             }
         }
 
-
-
-        // GET: Mostrar formulario para crear gasto inmueble
         public async Task<IActionResult> CrearGasto(string propiedadId)
         {
             if (string.IsNullOrWhiteSpace(propiedadId))
@@ -450,7 +439,6 @@ namespace ManejoAlquileres.Controllers
             return View(gasto);
         }
 
-        // POST: Crear gasto inmueble
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearGasto(GastoInmueble gasto)

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManejoAlquileres.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "UsuarioAutenticado")]
     public class GastosInmueblesController : Controller
     {
         private readonly IServicioGastoInmueble _servicio;
@@ -27,15 +27,23 @@ namespace ManejoAlquileres.Controllers
                 .AnyAsync(pu => pu.UsuarioId == userId && pu.PropiedadId == propiedadId);
         }
 
-        public async Task<IActionResult> Index(string propiedadId)
+        public async Task<IActionResult> Index()
         {
-            if (!await UsuarioEsPropietario(propiedadId))
-                return Forbid();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var gastos = (await _servicio.ObtenerTodos())
-                .Where(g => g.Id_propiedad == propiedadId);
+            var propiedades = await _context.PropiedadesUsuarios
+               .Include(pu => pu.Propiedad)
+               .Where(pu => pu.UsuarioId == userId)
+               .Select(pu => pu.Propiedad)
+               .ToListAsync();
 
-            ViewBag.PropiedadId = propiedadId;
+            var propiedadIds = propiedades.Select(p => p.Id_propiedad).ToList();
+
+            var gastos = await _servicio.ObtenerPorPropiedades(propiedadIds);
+
+            var propiedadesDict = propiedades.ToDictionary(p => p.Id_propiedad);
+
+            ViewBag.PropiedadId = propiedadesDict;
             return View(gastos);
         }
 

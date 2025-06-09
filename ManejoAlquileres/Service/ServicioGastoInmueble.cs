@@ -57,5 +57,12 @@ namespace ManejoAlquileres.Service
         {
             throw new NotImplementedException();
         }
+
+        public async Task<List<GastoInmueble>> ObtenerPorPropiedades(List<string> propiedadIds)
+        {
+            return await _context.GastosInmueble
+                .Where(g => propiedadIds.Contains(g.Id_propiedad))
+                .ToListAsync();
+        }
     }
 }

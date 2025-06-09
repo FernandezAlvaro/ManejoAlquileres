@@ -49,7 +49,7 @@ namespace ManejoAlquileres.Controllers
                     EsAdministrador = false
                 };
 
-                registrado = await _servicioCuenta.RegisterAsync(model);
+                registrado = await _servicioCuenta.RegisterAsync(nuevoUsuario);
 
             } while (!registrado);
 

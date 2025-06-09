@@ -10,5 +10,6 @@ namespace ManejoAlquileres.Service.Interface
         Task Actualizar(GastoInmueble gasto);
         Task Borrar(string id);
         Task<bool> Existe(string id);
+        Task<List<GastoInmueble>> ObtenerPorPropiedades(List<string> propiedadIds);
     }
 }

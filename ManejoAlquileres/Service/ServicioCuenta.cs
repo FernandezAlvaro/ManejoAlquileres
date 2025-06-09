@@ -11,14 +11,20 @@ public class ServicioCuenta : IServicioCuenta
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGeneradorIdsService _generadorIdsService;
 
-    public ServicioCuenta(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
+    public ServicioCuenta(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IGeneradorIdsService generadorIdsService)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;
+        _generadorIdsService = generadorIdsService;
     }
 
     public async Task<bool> RegisterAsync(Usuario model)
     {
+        if (string.IsNullOrEmpty(model.Id_usuario))
+        {
+            model.Id_usuario = await GenerarNuevoIdUsuarioAsync();
+        }
+
         var existe = await _context.Usuarios
             .AnyAsync(u => u.Id_usuario == model.Id_usuario || u.NIF == model.NIF);
 

@@ -1,0 +1,102 @@
+﻿@model ManejoAlquileres.Models.Helpers.ContratoViewModel
+
+@{
+    ViewData["Title"] = "Editar Contrato";
+}
+
+<h2>Editar contrato</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id_contrato" />
+
+    <div class="form-group">
+        <label asp-for="Propiedad.Id_propiedad">Propiedad</label>
+        <select asp-for="Propiedad.Id_propiedad" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Propiedades, "Id_propiedad", "Referencia_catastral", Model.Propiedad?.Id_propiedad))">
+            <option value="">Seleccione una propiedad</option>
+        </select>
+        <span asp-validation-for="Propiedad.Id_propiedad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Habitacion.Id_habitacion">Habitación</label>
+        <select asp-for="Habitacion.Id_habitacion" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Habitaciones, "Id_habitacion", "Descripcion", Model.Habitacion?.Id_habitacion))">
+            <option value="">Seleccione una habitación</option>
+        </select>
+        <span asp-validation-for="Habitacion.Id_habitacion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Inquilino.NIF">Inquilino (DNI/NIF)</label>
+        <select asp-for="Inquilino.NIF" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Usuarios, "NIF", "NombreCompleto", Model.Inquilino?.NIF))">
+            <option value="">Seleccione un inquilino</option>
+        </select>
+        <span asp-validation-for="Inquilino.NIF" class="text-danger"></span>
+    </div>
+
+    @if (ViewBag.EsPropietario == true)
+    {
+        <p class="text-danger">No puedes asignar como inquilino a un propietario de la misma propiedad.</p>
+    }
+
+    <div class="form-group">
+        <label asp-for="Periodicidad">Periodicidad</label>
+        <select asp-for="Periodicidad" class="form-control">
+            <option value="">Seleccione periodicidad</option>
+            <option value="Semanal">Semanal</option>
+            <option value="Dos Semanas">Dos Semanas</option>
+            <option value="Mensual">Mensual</option>
+            <option value="Trimestral">Trimestral</option>
+            <option value="Anual">Anual</option>
+        </select>
+        <span asp-validation-for="Periodicidad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Monto_pago">Monto del Pago</label>
+        <input asp-for="Monto_pago" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Monto_pago" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Porcentaje_incremento">Porcentaje incremento</label>
+        <input asp-for="Porcentaje_incremento" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Porcentaje_incremento" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fianza">Fianza</label>
+        <input asp-for="Fianza" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Fianza" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Comision_inmobiliaria">Comisión inmobiliaria</label>
+        <input asp-for="Comision_inmobiliaria" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Comision_inmobiliaria" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Cláusula prórroga</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="Clausula_prorroga" value="Tácita" />
+            <label class="form-check-label">Tácita (se renueva automáticamente)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="Clausula_prorroga" value="Convencional" />
+            <label class="form-check-label">Convencional (requiere renovación manual)</label>
+        </div>
+        <span asp-validation-for="Clausula_prorroga" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha_max_revision">Fecha máxima revisión</label>
+        <input asp-for="Fecha_max_revision" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_max_revision" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

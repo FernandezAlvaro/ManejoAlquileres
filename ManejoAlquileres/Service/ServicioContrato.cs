@@ -1,7 +1,5 @@
-﻿using Dapper;
-using ManejoAlquileres.Models;
+﻿using ManejoAlquileres.Models;
 using ManejoAlquileres.Service.Interface;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManejoAlquileres.Service

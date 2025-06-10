@@ -14,8 +14,8 @@ namespace ManejoAlquileres.Models
         public Propiedad Propiedad { get; set; }
 
         [StringLength(9)]
-        public string Id_habitacion { get; set; }
-        public Habitacion Habitacion { get; set; }
+        public string? Id_habitacion { get; set; }
+        public Habitacion? Habitacion { get; set; }
         public DateTime Fecha_inicio { get; set; }
         public DateTime Fecha_fin { get; set; }
 

@@ -21,15 +21,17 @@ namespace ManejoAlquileres.Service
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Habitacion?> ObtenerPorId(string id)
+        public async Task<Habitacion> ObtenerPorId(string id)
         {
             return await _context.Habitaciones
                 .FirstOrDefaultAsync(h => h.Id_habitacion == id);
         }
 
-        public async Task<IEnumerable<Habitacion>> ObtenerTodas()
+        public async Task<List<Habitacion>> ObtenerTodas()
         {
-            return await _context.Habitaciones.ToListAsync();
+            return await _context.Habitaciones
+                .Include(h => h.Propiedad)
+                .ToListAsync();
         }
 
         public async Task Actualizar(Habitacion habitacion)
@@ -51,6 +53,20 @@ namespace ManejoAlquileres.Service
         public async Task<bool> Existe(string id)
         {
             return await _context.Habitaciones.AnyAsync(h => h.Id_habitacion == id);
+        }
+
+        public async Task<List<Habitacion>> ObtenerPorPropiedad(string propiedadId)
+        {
+            return await _context.Habitaciones
+                .Where(h => h.Id_propiedad == propiedadId)
+                .ToListAsync();
+        }
+        public async Task<Habitacion> ObtenerConDetalles(string id)
+        {
+            return await _context.Habitaciones
+                .Include(h => h.Propiedad)
+                .Include(h => h.Contratos)
+                .FirstOrDefaultAsync(h => h.Id_habitacion == id);
         }
     }
 }

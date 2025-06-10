@@ -5,7 +5,10 @@
 }
 
 <h2>Habitaciones</h2>
-
+@if (User.HasClaim("esAdministrador", "true"))
+{
+    <a asp-action="ListaCompletaHabitaciones" class="btn btn-success mb-3">Ver todas las habitaciones</a>
+}
 @if (!Model.Any())
 {
     <div class="alert alert-info">No hay habitaciones registradas.</div>

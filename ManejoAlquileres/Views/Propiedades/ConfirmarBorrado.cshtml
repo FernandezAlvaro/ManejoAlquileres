@@ -29,18 +29,6 @@
                         <dt class="col-sm-5">Descripción:</dt>
                         <dd class="col-sm-7">@Model.Descripcion</dd>
                     </dl>
-                    @if (User.IsInRole("Administrador") && Model.UsuariosConPorcentaje?.Any() == true)
-                    {
-                        <hr />
-                        <h5 class="text-primary">Usuarios con participación en esta propiedad:</h5>
-                        <ul>
-                            @foreach (var item in Model.UsuariosConPorcentaje)
-                            {
-                                <li><strong>@item.NIF + " " + @item.NombreCompleto</strong>: @($"{item.Porcentaje / 100:P}")</li>
-                            }
-                        </ul>
-                    }
-
                     <form asp-action="Borrar" method="post">
                         <input type="hidden" asp-for="Id" />
                         <div class="d-flex justify-content-between">

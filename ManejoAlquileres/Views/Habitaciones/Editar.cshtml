@@ -1,0 +1,33 @@
+﻿@model ManejoAlquileres.Models.Habitacion
+
+<h2>Editar Habitación</h2>
+
+<form asp-action="Editar">
+    <input type="hidden" asp-for="Id_habitacion" />
+    <input type="hidden" asp-for="Id_propiedad" />
+
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label">Descripción</label>
+        <input asp-for="Descripcion" class="form-control" />
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Tamaño" class="form-label">Tamaño (m²)</label>
+        <input asp-for="Tamaño" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Tamaño" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="Disponible" />
+        <label class="form-check-label" asp-for="Disponible">Disponible</label>
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="Bano_propio" />
+        <label class="form-check-label" asp-for="Bano_propio">Baño propio</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Index" asp-route-propiedadId="@Model.Id_propiedad" class="btn btn-secondary">Cancelar</a>
+</form>

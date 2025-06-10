@@ -118,5 +118,33 @@ namespace ManejoAlquileres.Controllers
             await _servicio.Borrar(id);
             return RedirectToAction("Index", new { propiedadId = habitacion.Id_propiedad });
         }
+
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> ListaCompletaHabitaciones()
+        {
+            var habitaciones = await _servicio.ObtenerTodas();
+            return View(habitaciones);
+        }
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> ModificarAdminHabitacion(string id)
+        {
+            var habitacion = await _servicio.ObtenerPorId(id);
+            if (habitacion == null)
+                return NotFound();
+
+            return View(habitacion);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> ModificarAdminHabitacion(Habitacion habitacion)
+        {
+            if (!ModelState.IsValid)
+                return View(habitacion);
+
+            await _servicio.Actualizar(habitacion);
+            TempData["Mensaje"] = "Habitación modificada correctamente.";
+            return RedirectToAction("ListaCompletaHabitaciones");
+        }
     }
 }

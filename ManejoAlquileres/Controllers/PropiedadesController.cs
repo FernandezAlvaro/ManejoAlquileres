@@ -112,7 +112,7 @@ namespace ManejoAlquileres.Controllers
                 if (sumaPorcentajes + nuevoPorcentaje > 1)
                 {
                     ModelState.AddModelError(string.Empty,
-                        $"La suma de porcentajes de propiedad excede 100%. Actualmente está en {sumaPorcentajes * 100}%. Por favor ajuste el porcentaje.");
+                        $"La suma de porcentajes de propiedad excede 100%. Actualmente está en {sumaPorcentajes}%. Por favor ajuste el porcentaje.");
                     return View(vm);
                 }
 
@@ -465,6 +465,7 @@ namespace ManejoAlquileres.Controllers
 
             gasto.Id_gasto = await _generadorIdsService.GenerarIdUnicoAsync();
             gasto.Id_propiedad = propiedadId;
+            gasto.Porcentaje_amortizacion = gasto.Porcentaje_amortizacion / 100;
 
             _context.GastosInmueble.Add(gasto);
             await _context.SaveChangesAsync();
@@ -500,6 +501,7 @@ namespace ManejoAlquileres.Controllers
                     PorcentajesUsuarios = p.Usuarios.Select(u => new UsuarioPorcentajeViewModel
                     {
                         UsuarioId = u.UsuarioId,
+                        NIF = u.Usuario.NIF,
                         NombreCompleto = $"{u.Usuario.Nombre} {u.Usuario.Apellidos}",
                         Porcentaje = u.PorcentajePropiedad
                     }).ToList()
@@ -542,6 +544,131 @@ namespace ManejoAlquileres.Controllers
             };
         }
 
+        public async Task<IActionResult> EditarAdmin(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            var propiedad = await _context.Propiedades
+                    .Include(p => p.Usuarios)
+                        .ThenInclude(pu => pu.Usuario)
+                    .FirstOrDefaultAsync(p => p.Id_propiedad == id);
+
+            if (propiedad == null)
+                return NotFound();
+
+            var vm = MapearPropiedadAdminAViewModel(propiedad);
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarAdmin(string id, PropiedadAdminViewModel vm)
+        {
+            if (id != vm.Id)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var propiedad = await _context.Propiedades
+                .Include(p => p.Usuarios)
+                .FirstOrDefaultAsync(p => p.Id_propiedad == id);
+
+            if (propiedad == null)
+                return NotFound();
+
+            bool existeRef = await _context.Propiedades
+                .AnyAsync(p => p.Referencia_catastral == vm.ReferenciaCatastral && p.Id_propiedad != id);
+
+            if (existeRef)
+            {
+                ModelState.AddModelError(nameof(vm.ReferenciaCatastral), "La referencia catastral ya está registrada.");
+                return View(vm);
+            }
+
+            ActualizarPropiedadDesdeAdminViewModel(propiedad, vm);
+
+            _context.Propiedades.Update(propiedad);
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] = "Propiedad actualizada correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> DetallesAdmin(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            var propiedad = await _context.Propiedades
+                .Include(p => p.Habitaciones)
+                .Include(p => p.GastoInmueble)
+                .Include(p => p.Usuarios)
+                .ThenInclude(pu => pu.Usuario)
+                .FirstOrDefaultAsync(p => p.Id_propiedad == id);
+
+            if (propiedad == null)
+                return NotFound();
+
+            var vm = MapearPropiedadAdminAViewModel(propiedad);
+
+            return View(vm);
+        }
+
+        public async Task<IActionResult> ConfirmarBorradoAdmin(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            var propiedad = await _context.Propiedades.FirstOrDefaultAsync(p => p.Id_propiedad == id);
+
+            if (propiedad == null)
+                return NotFound();
+
+            var vm = new PropiedadAdminViewModel
+            {
+                Id = propiedad.Id_propiedad,
+                Direccion = propiedad.Direccion,
+                ReferenciaCatastral = propiedad.Referencia_catastral,
+                EstadoPropiedad = propiedad.Estado_propiedad,
+                ValorAdquisicion = propiedad.Valor_adquisicion,
+                Descripcion = propiedad.Descripcion
+            };
+
+            return View(vm);
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BorrarAdmin(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            var propiedad = await _context.Propiedades
+                .Include(p => p.Habitaciones)
+                .Include(p => p.GastoInmueble)
+                .Include(p => p.Usuarios)
+                .FirstOrDefaultAsync(p => p.Id_propiedad == id);
+
+            if (propiedad == null)
+                return NotFound();
+
+            _context.Habitaciones.RemoveRange(propiedad.Habitaciones);
+            _context.GastosInmueble.RemoveRange(propiedad.GastoInmueble);
+            _context.PropiedadesUsuarios.RemoveRange(propiedad.Usuarios);
+            _context.Propiedades.Remove(propiedad);
+
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] = "Propiedad eliminada correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
         private static void ActualizarPropiedadDesdeViewModel(Propiedad propiedad, PropiedadViewModel vm)
         {
             propiedad.Direccion = vm.Direccion;
@@ -553,6 +680,46 @@ namespace ManejoAlquileres.Controllers
             propiedad.Valor_adquisicion = vm.ValorAdquisicion;
             propiedad.Valor_adqui_total = vm.ValorAdquisicionTotal;
             propiedad.Estado_propiedad = vm.EstadoPropiedad;
+            propiedad.Descripcion = vm.Descripcion;
+        }
+
+        private PropiedadAdminViewModel MapearPropiedadAdminAViewModel(Propiedad propiedad)
+        {
+            return new PropiedadAdminViewModel
+            {
+                Id = propiedad.Id_propiedad,
+                Direccion = propiedad.Direccion,
+                ReferenciaCatastral = propiedad.Referencia_catastral,
+                EstadoPropiedad = propiedad.Estado_propiedad,
+                FechaAdquisicion = propiedad.Fecha_adquisicion,
+                ValorAdquisicion = propiedad.Valor_adquisicion,
+                ValorAdquisicionTotal = propiedad.Valor_adqui_total,
+                ValorCatastralPiso = propiedad.Valor_catastral_piso,
+                ValorCatastralTerreno = propiedad.Valor_catastral_terreno,
+                NumHabitaciones = propiedad.numHabitaciones,
+                Descripcion = propiedad.Descripcion,
+                PorcentajesUsuarios = propiedad.Usuarios
+                    .Select(u => new UsuarioPorcentajeViewModel
+                    {
+                        UsuarioId = u.UsuarioId,
+                        NIF = u.Usuario.NIF,
+                        NombreCompleto = u.Usuario.Nombre + u.Usuario.Apellidos,
+                        Porcentaje = u.PorcentajePropiedad
+                    }).ToList()
+            };
+        }
+
+        private void ActualizarPropiedadDesdeAdminViewModel(Propiedad propiedad, PropiedadAdminViewModel vm)
+        {
+            propiedad.Direccion = vm.Direccion;
+            propiedad.Referencia_catastral = vm.ReferenciaCatastral;
+            propiedad.Estado_propiedad = vm.EstadoPropiedad;
+            propiedad.Fecha_adquisicion = vm.FechaAdquisicion;
+            propiedad.Valor_adquisicion = vm.ValorAdquisicion;
+            propiedad.Valor_adqui_total = vm.ValorAdquisicionTotal;
+            propiedad.Valor_catastral_piso = vm.ValorCatastralPiso;
+            propiedad.Valor_catastral_terreno = vm.ValorCatastralTerreno;
+            propiedad.numHabitaciones = vm.NumHabitaciones;
             propiedad.Descripcion = vm.Descripcion;
         }
     }

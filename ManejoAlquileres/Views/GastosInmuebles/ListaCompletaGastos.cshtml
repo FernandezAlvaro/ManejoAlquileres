@@ -1,0 +1,45 @@
+﻿@model List<ManejoAlquileres.Models.GastoInmueble>
+
+<h2>Todos los Gastos de Inmuebles</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Descripción</th>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Fecha de Pago</th>
+            <th>Repercutible</th>
+            <th>Propiedad</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gasto in Model)
+        {
+            <tr>
+                <td>@gasto.Descripcion</td>
+                <td>@gasto.Tipo_gasto</td>
+                <td>@gasto.Monto_gasto €</td>
+                <td>@gasto.Fecha_pago.ToShortDateString()</td>
+                <td>@(gasto.Repercutible ? "Sí" : "No")</td>
+                <td>@gasto.Propiedad.Referencia_catastral @gasto.Propiedad.Referencia_catastral</td>
+                <td class="d-flex flex-wrap">
+                    <a asp-action="DetallesAdmin" asp-route-id="@gasto.Id_gasto" class="btn btn-info btn-sm m-1">Detalles</a>
+                    <a asp-action="ModificarAdmin" asp-route-id="@gasto.Id_gasto" class="btn btn-warning btn-sm m-1">Modificar</a>
+                    <form asp-action="Eliminar" asp-route-id="@gasto.Id_gasto" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este gasto?');">
+                        <button type="submit" class="btn btn-danger btn-sm m-1">Eliminar</button>
+                    </form>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

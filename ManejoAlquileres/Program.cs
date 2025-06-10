@@ -26,7 +26,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Cuenta/Login";
     options.AccessDeniedPath = "/Cuenta/AccessDenied";
 });
-
+builder.Services.AddControllersWithViews();
 // Registrar autenticación por cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -49,13 +49,15 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Aquí registro mis servicios e interfaces:
-builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
-builder.Services.AddScoped<IServicioCuenta, ServicioCuenta>();
 builder.Services.AddScoped<IServicioContrato, ServicioContrato>();
-builder.Services.AddScoped<IServicioPropiedades, ServicioPropiedades>();
-builder.Services.AddScoped<IServicioHabitacion, ServicioHabitacion>();
+builder.Services.AddScoped<IServicioCuenta, ServicioCuenta>();
 builder.Services.AddScoped<IServicioGastoInmueble, ServicioGastoInmueble>();
+builder.Services.AddScoped<IServicioHabitacion, ServicioHabitacion>();
+builder.Services.AddScoped<IServicioPago, ServicioPago>();
+builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddScoped<IServicioPropiedades, ServicioPropiedades>();
 builder.Services.AddScoped<IGeneradorIdsService, GeneradorIdsService>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -97,7 +99,7 @@ app.UseStaticFiles();
 app.UseRouting();
 // Para controladores API (como los de Swagger)
 app.MapControllers();
-
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Cuenta}/{action=Login}/{id?}");

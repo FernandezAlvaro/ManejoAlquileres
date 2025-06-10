@@ -3,7 +3,6 @@ using ManejoAlquileres.Models;
 using ManejoAlquileres.Service.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 public class ServicioCuenta : IServicioCuenta
 {

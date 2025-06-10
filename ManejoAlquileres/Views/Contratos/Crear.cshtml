@@ -1,0 +1,151 @@
+﻿@model ManejoAlquileres.Models.Helpers.ContratoViewModel
+
+@{
+    ViewData["Title"] = "Crear Contrato";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Crear" method="post">
+
+    @if (ViewBag.Propiedades != null)
+    {
+        <select asp-for="Propiedad.Id_propiedad" id="PropiedadId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Propiedades, "Id_propiedad", "Referencia_catastral"))">
+            <option value="">Seleccione una propiedad</option>
+        </select>
+    }
+    else
+    {
+        <select class="form-control">
+            <option value="">No hay propiedades disponibles</option>
+        </select>
+    }
+
+    <div class="form-group">
+        <label asp-for="Habitacion.Id_habitacion">Habitación</label>
+        <select asp-for="Habitacion.Id_habitacion" id="HabitacionId" class="form-control">
+            <option value="">Seleccione una habitación</option>
+        </select>
+        <span asp-validation-for="Habitacion.Id_habitacion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Periodicidad">Periodicidad</label>
+        <select asp-for="Periodicidad" class="form-control">
+            <option value="">Seleccione periodicidad</option>
+            <option>Semanal</option>
+            <option>Dos Semanas</option>
+            <option>Mensual</option>
+            <option>Trimestral</option>
+            <option>Anual</option>
+        </select>
+        <span asp-validation-for="Periodicidad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Tipo_Alquiler">Tipo Alquiler</label>
+        <input asp-for="Tipo_Alquiler" class="form-control" />
+        <span asp-validation-for="Tipo_Alquiler" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha_inicio">Fecha inicio</label>
+        <input asp-for="Fecha_inicio" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_inicio" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha_fin">Fecha fin</label>
+        <input asp-for="Fecha_fin" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_fin" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Monto_pago">Monto del Pago</label>
+        <input asp-for="Monto_pago" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Monto_pago" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Porcentaje_incremento">Porcentaje incremento</label>
+        <input asp-for="Porcentaje_incremento" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Porcentaje_incremento" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha_max_revision">Fecha máxima revisión</label>
+        <input asp-for="Fecha_max_revision" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_max_revision" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fianza">Fianza</label>
+        <input asp-for="Fianza" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Fianza" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Comision_inmobiliaria">Comisión inmobiliaria</label>
+        <input asp-for="Comision_inmobiliaria" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Comision_inmobiliaria" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Aval">Aval</label>
+        <input asp-for="Aval" class="form-control" />
+        <span asp-validation-for="Aval" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Cláusula prórroga</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="Clausula_prorroga" value="Tacita" checked />
+            <label class="form-check-label">Tácita</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" asp-for="Clausula_prorroga" value="Convencional" />
+            <label class="form-check-label">Convencional</label>
+        </div>
+        <span asp-validation-for="Clausula_prorroga" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="InquilinoId">Inquilino</label>
+        <select id="InquilinoId" name="InquilinoId" class="form-control"
+                asp-items="@(new SelectList(ViewBag.Usuarios, "Id_usuario", "NombreCompleto"))">
+            <option value="">Seleccione un inquilino</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+<script>
+    $(document).ready(function () {
+        $('#PropiedadId').on('change', function () {
+            var propiedadId = $(this).val();
+
+            if (propiedadId) {
+                $.get('/api/habitaciones/' + propiedadId, function (data) {
+                    let opciones = '';
+
+                    if (data.length > 0) {
+                        opciones += '<option value="">Seleccione una habitación</option>';
+                        data.forEach(function (habitacion) {
+                            opciones += '<option value="' + habitacion.id_habitacion + '">' + habitacion.descripcion + '</option>';
+                        });
+                    } else {
+                        opciones += '<option value="">No hay habitaciones disponibles</option>';
+                    }
+
+                    $('#HabitacionId').html(opciones);
+                }).fail(function () {
+                    $('#HabitacionId').html('<option value="">Error cargando habitaciones</option>');
+                });
+            } else {
+                $('#HabitacionId').html('<option value="">Seleccione una propiedad primero</option>');
+            }
+        });
+    });
+</script>

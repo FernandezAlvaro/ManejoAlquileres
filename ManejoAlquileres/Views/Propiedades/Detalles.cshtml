@@ -55,7 +55,7 @@
                         <dd class="col-sm-7">@Model.ValorAdquisicionTotal.ToString("N2") €</dd>
 
                         <dt class="col-sm-5">Porcentaje de Propiedad:</dt>
-                        <dd class="col-sm-7">@($"{ViewBag.PorcentajePropiedad:P}")</dd>
+                        <dd class="col-sm-7">@($"{Model.PorcentajePropiedad:P}")</dd>
 
                         <dt class="col-sm-5">Descripción:</dt>
                         <dd class="col-sm-7">@Model.Descripcion</dd>
@@ -112,7 +112,6 @@
                                     <th>Tipo</th>
                                     <th>Importe</th>
                                     <th>Fecha</th>
-                                    <th>Notas</th>
                                 </tr>
                             </thead>
                             <tbody>

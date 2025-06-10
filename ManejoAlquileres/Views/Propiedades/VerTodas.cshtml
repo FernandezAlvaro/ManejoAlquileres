@@ -37,14 +37,14 @@
                                 <ul class="list-unstyled mb-0">
                                     @foreach (var porcentaje in propiedad.PorcentajesUsuarios)
                                     {
-                                        <li><strong>@porcentaje.NIF - @porcentaje.NombreCompleto:</strong> @($"{porcentaje.Porcentaje / 100:P}")</li>
+                                        <li><strong>@porcentaje.NIF - @porcentaje.NombreCompleto:</strong> @($"{porcentaje.Porcentaje:P}")</li>
                                     }
                                 </ul>
                             </td>
                             <td class="text-center">
-                                <a asp-action="Detalles" asp-route-id="@propiedad.Id" class="btn btn-sm btn-info me-1">Ver</a>
-                                <a asp-action="Editar" asp-route-id="@propiedad.Id" class="btn btn-sm btn-warning me-1">Editar</a>
-                                <a asp-action="ConfirmarBorrado" asp-route-id="@propiedad.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                                <a asp-action="DetallesAdmin" asp-route-id="@propiedad.Id" class="btn btn-sm btn-info me-1">Ver</a>
+                                <a asp-action="EditarAdmin" asp-route-id="@propiedad.Id" class="btn btn-sm btn-warning me-1">Editar</a>
+                                <a asp-action="ConfirmarBorradoAdmin" asp-route-id="@propiedad.Id" class="btn btn-sm btn-danger">Eliminar</a>
                             </td>
                         </tr>
                     }

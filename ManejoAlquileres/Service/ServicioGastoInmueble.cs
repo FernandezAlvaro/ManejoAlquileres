@@ -27,9 +27,11 @@ namespace ManejoAlquileres.Service
                 .FirstOrDefaultAsync(g => g.Id_gasto == id);
         }
 
-        public async Task<IEnumerable<GastoInmueble>> ObtenerTodos()
+        public async Task<List<GastoInmueble>> ObtenerTodos()
         {
-            return await _context.GastosInmueble.ToListAsync();
+            return await _context.GastosInmueble
+                .Include(g => g.Propiedad)
+                .ToListAsync();
         }
 
         public async Task Actualizar(GastoInmueble gasto)
@@ -53,11 +55,12 @@ namespace ManejoAlquileres.Service
             return await _context.GastosInmueble.AnyAsync(g => g.Id_gasto == id);
         }
 
-        Task<List<GastoInmueble>> IServicioGastoInmueble.ObtenerTodos()
+        public async Task<GastoInmueble> ObtenerConPropiedad(string id)
         {
-            throw new NotImplementedException();
+            return await _context.GastosInmueble
+                .Include(g => g.Propiedad)
+                .FirstOrDefaultAsync(g => g.Id_gasto == id);
         }
-
         public async Task<List<GastoInmueble>> ObtenerPorPropiedades(List<string> propiedadIds)
         {
             return await _context.GastosInmueble

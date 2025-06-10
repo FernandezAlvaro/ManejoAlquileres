@@ -2,11 +2,28 @@
 @{
     var propiedadId = ViewBag.PropiedadId as string;
     var nombrePropiedad = ViewBag.NombrePropiedad as string;
+    bool esAdmin = User.HasClaim("esAdministrador", "true");
 }
 
 <h2>Gastos de @nombrePropiedad</h2>
-
-<a asp-action="Crear" asp-route-propiedadId="@propiedadId" class="btn btn-primary">Nuevo Gasto</a>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+@if (esAdmin)
+{
+    <a asp-action="ListaCompletaGastos" class="btn btn-sm btn-success mb-3">Ver todos los gastos</a>
+}
+<form method="get" class="mb-3">
+    <label for="propiedadId">Filtrar por propiedad:</label>
+    <select name="propiedadId" class="form-control d-inline w-auto mx-2" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        @foreach (var prop in (Dictionary<string, string>)ViewBag.PropiedadesReferencias!)
+        {
+            <option value="@prop.Key" selected="@(prop.Key == propiedadId ? "selected" : null)">@prop.Value</option>
+        }
+    </select>
+</form>
 
 <table class="table mt-3">
     <thead>
@@ -30,7 +47,10 @@
                 <td>@(gasto.Repercutible ? "Sí" : "No")</td>
                 <td>
                     <a asp-action="Editar" asp-route-id="@gasto.Id_gasto" class="btn btn-sm btn-warning">Editar</a>
-                    <a asp-action="Eliminar" asp-route-id="@gasto.Id_gasto" class="btn btn-sm btn-danger">Eliminar</a>
+                    <form asp-action="Eliminar" asp-route-id="@gasto.Id_gasto" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este gasto?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                    <a asp-action="Detalles" asp-route-id="@gasto.Id_gasto" class="btn btn-sm btn-info">Detalles</a>
                 </td>
             </tr>
         }

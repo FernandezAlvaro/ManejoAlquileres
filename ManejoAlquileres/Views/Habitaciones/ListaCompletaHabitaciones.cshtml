@@ -1,0 +1,43 @@
+﻿@model IEnumerable<ManejoAlquileres.Models.Habitacion>
+
+<h2>Listado Completo de Habitaciones</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay habitaciones registradas.</div>
+}
+else
+{
+    <table class="table table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>Tamaño</th>
+                <th>Descripción</th>
+                <th>Disponible</th>
+                <th>Baño Propio</th>
+                <th>Propiedad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var habitacion in Model)
+            {
+                <tr>
+                    <td>@habitacion.Tamaño m²</td>
+                    <td>@habitacion.Descripcion</td>
+                    <td>@(habitacion.Disponible ? "Sí" : "No")</td>
+                    <td>@(habitacion.Bano_propio ? "Sí" : "No")</td>
+                    <td>@habitacion.Propiedad?.Referencia_catastral</td>
+                    <td>
+                        <a asp-action="ModificarAdminHabitacion" asp-route-id="@habitacion.Id_habitacion" class="btn btn-sm btn-warning">Modificar</a>
+                        <form asp-action="EliminarAdminHabitacion" asp-route-id="@habitacion.Id_habitacion" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar esta habitación?');">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

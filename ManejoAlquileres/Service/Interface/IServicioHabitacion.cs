@@ -1,4 +1,5 @@
 ﻿using ManejoAlquileres.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManejoAlquileres.Service.Interface
 {
@@ -6,9 +7,11 @@ namespace ManejoAlquileres.Service.Interface
     {
         Task Crear(Habitacion habitacion);
         Task<Habitacion> ObtenerPorId(string id);
-        Task<IEnumerable<Habitacion>> ObtenerTodas();
+        Task<List<Habitacion>> ObtenerTodas();
         Task Actualizar(Habitacion habitacion);
         Task Borrar(string id);
+        Task<Habitacion> ObtenerConDetalles(string id);
         Task<bool> Existe(string id);
+        Task<List<Habitacion>> ObtenerPorPropiedad(string propiedadId);
     }
 }

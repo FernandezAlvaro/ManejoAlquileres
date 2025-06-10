@@ -6,10 +6,11 @@ namespace ManejoAlquileres.Service.Interface
     {
         Task Crear(GastoInmueble gasto);
         Task<GastoInmueble> ObtenerPorId(string id);
-        Task<List<GastoInmueble>> ObtenerTodos();
+        Task<GastoInmueble> ObtenerConPropiedad(string id);
         Task Actualizar(GastoInmueble gasto);
         Task Borrar(string id);
         Task<bool> Existe(string id);
         Task<List<GastoInmueble>> ObtenerPorPropiedades(List<string> propiedadIds);
+        Task<List<GastoInmueble>> ObtenerTodos();
     }
 }

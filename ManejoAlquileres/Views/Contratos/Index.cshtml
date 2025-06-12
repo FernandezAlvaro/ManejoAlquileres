@@ -1,24 +1,85 @@
-﻿@{
+﻿@using System.Security.Claims
+
+@{
     ViewData["Title"] = "Contratos";
     var contratosInquilino = ViewBag.ContratosInquilino as List<ManejoAlquileres.Models.Contrato>;
     var contratosPropietario = ViewBag.ContratosPropietario as List<ManejoAlquileres.Models.Contrato>;
 }
 
-@if (TempData["Mensaje"] != null)
+<style>
+    .table-inquilino {
+        background-color: #e0f3ff;
+        border: 2px solid #b3e0ff;
+    }
+
+    .table-propietario {
+        background-color: #fff3e0;
+        border: 2px solid #ffcc80;
+    }
+
+    .btn-lg i {
+        margin-right: 5px;
+    }
+
+    .admin-options, .btn-add {
+        margin-bottom: 20px;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .thead-dark th {
+        background-color: #343a40;
+        color: #ffffff;
+    }
+
+    .fila-activo {
+        background-color: #d4edda; 
+    }
+
+    .fila-vencido {
+        background-color: #f8d7da;
+    }
+</style>
+
+@if (!ViewData.ModelState.IsValid)
 {
-    <div class="alert alert-@TempData["TipoMensaje"]">
-        @TempData["Mensaje"]
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
     </div>
 }
 
 <h1>Contratos</h1>
 
-<a href="@Url.Action("Crear", "Contratos")" class="btn btn-primary mb-4">Añadir Contrato</a>
+@{
+    var isAdmin = User.IsInRole("Administrador");
+}
+
+@if (isAdmin)
+{
+    <div class="admin-options">
+        <a class="btn btn-outline-primary btn-lg" asp-action="VerTodosLosContratos">
+            Ver todos los contratos
+        </a>
+    </div>
+}
+
+<div class="btn-add">
+    <a href="@Url.Action("Crear", "Contratos")" class="btn btn-success btn-lg">
+        Añadir Contrato
+    </a>
+</div>
 
 <h2>Como Inquilino</h2>
 @if (contratosInquilino != null && contratosInquilino.Any())
 {
-    <table class="table table-bordered">
+    <table class="table table-bordered table-inquilino">
         <thead class="thead-dark">
             <tr>
                 <th>ID</th>
@@ -60,7 +121,7 @@ else
 <h2>Como Propietario</h2>
 @if (contratosPropietario != null && contratosPropietario.Any())
 {
-    <table class="table table-bordered">
+    <table class="table table-bordered table-propietario">
         <thead class="thead-dark">
             <tr>
                 <th>ID</th>

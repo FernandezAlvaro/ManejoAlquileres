@@ -1,4 +1,6 @@
-﻿namespace ManejoAlquileres.Models.Helpers
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ManejoAlquileres.Models.Helpers
 {
     public class ContratoViewModel
     {
@@ -6,6 +8,7 @@
         public DateTime Fecha_inicio { get; set; }
         public DateTime Fecha_fin { get; set; }
         public DateTime Fecha_max_revision { get; set; }
+        [Required(ErrorMessage = "Debe seleccionar el tipo de alquiler")]
         public string Tipo_Alquiler { get; set; }
         public decimal Monto_pago { get; set; }
         public decimal Porcentaje_incremento { get; set; }
@@ -15,6 +18,7 @@
         public string Periodicidad { get; set; }
         public string Aval { get; set; }
 
+        public List<string> InquilinosSeleccionados { get; set; }
 
         public Propiedad Propiedad { get; set; }
         public Habitacion? Habitacion { get; set; }

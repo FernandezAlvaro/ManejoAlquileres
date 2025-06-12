@@ -5,7 +5,12 @@
 }
 
 <h2>Editar contrato</h2>
-
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-@TempData["TipoMensaje"]">
+        @TempData["Mensaje"]
+    </div>
+}
 <form asp-action="Editar" method="post">
     <input type="hidden" asp-for="Id_contrato" />
 
@@ -28,12 +33,11 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="Inquilino.NIF">Inquilino (DNI/NIF)</label>
-        <select asp-for="Inquilino.NIF" class="form-control"
-                asp-items="@(new SelectList(ViewBag.Usuarios, "NIF", "NombreCompleto", Model.Inquilino?.NIF))">
-            <option value="">Seleccione un inquilino</option>
+        <label asp-for="InquilinosSeleccionados">Inquilinos</label>
+        <select asp-for="InquilinosSeleccionados" class="form-control" multiple
+                asp-items="@(new SelectList(ViewBag.Usuarios, "Id_usuario", "NombreCompleto", Model.InquilinosSeleccionados))">
         </select>
-        <span asp-validation-for="Inquilino.NIF" class="text-danger"></span>
+        <span asp-validation-for="InquilinosSeleccionados" class="text-danger"></span>
     </div>
 
     @if (ViewBag.EsPropietario == true)
@@ -90,13 +94,78 @@
         </div>
         <span asp-validation-for="Clausula_prorroga" class="text-danger"></span>
     </div>
+    <div class="form-group">
+        <label asp-for="Fecha_inicio">Fecha de inicio</label>
+        <input asp-for="Fecha_inicio" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_inicio" class="text-danger"></span>
+    </div>
 
+    <div class="form-group">
+        <label asp-for="Fecha_fin">Fecha de fin</label>
+        <input asp-for="Fecha_fin" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_fin" class="text-danger"></span>
+    </div>
     <div class="form-group">
         <label asp-for="Fecha_max_revision">Fecha máxima revisión</label>
         <input asp-for="Fecha_max_revision" class="form-control" type="date" />
         <span asp-validation-for="Fecha_max_revision" class="text-danger"></span>
     </div>
 
+    <div class="form-group">
+        <label asp-for="Tipo_Alquiler">Tipo de alquiler</label>
+        <input asp-for="Tipo_Alquiler" class="form-control" />
+        <span asp-validation-for="Tipo_Alquiler" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Aval">Aval</label>
+        <input asp-for="Aval" class="form-control" />
+        <span asp-validation-for="Aval" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">Guardar cambios</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
+
+@@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("select[name='Propiedad.Id_propiedad']").change(function () {
+            var propiedadId = $(this).val();
+            var habitacionesSelect = $("select[name='Habitacion.Id_habitacion']");
+
+            if (!propiedadId) {
+                habitacionesSelect.empty();
+                habitacionesSelect.append('<option value="">Seleccione una habitación</option>');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("ObtenerHabitacionesPorPropiedad", "Contratos")',
+                type: 'GET',
+                data: { propiedadId: propiedadId },
+                success: function (data) {
+                    habitacionesSelect.empty();
+                    habitacionesSelect.append('<option value="">Seleccione una habitación</option>');
+                    $.each(data, function (i, habitacion) {
+                        habitacionesSelect.append(
+                            $('<option>', {
+                                value: habitacion.id_habitacion,
+                                text: habitacion.descripcion
+                            })
+                        );
+                    });
+                },
+                error: function () {
+                    alert("Error al cargar las habitaciones.");
+                }
+            });
+        });
+
+        $("select[name='Propiedad.Id_propiedad']").trigger('change');
+    });
+</script>
+}

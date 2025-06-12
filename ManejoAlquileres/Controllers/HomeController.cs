@@ -22,33 +22,33 @@ namespace ManejoAlquileres.Controllers
         [Authorize(Policy = "UsuarioAutenticado")]
         public async Task<IActionResult> Index()
         {
-            var pagos = new List<Pago>();
-            var connectionString = _config.GetConnectionString("DefaultConnection");
+            //var pagos = new List<Pago>();
+            //var connectionString = _config.GetConnectionString("DefaultConnection");
 
-            using var connection = new SqlConnection(connectionString);
-            var query = "SELECT Monto_pago, Descripcion, Fecha_pago_programada FROM Pagos";
+            //using var connection = new SqlConnection(connectionString);
+            //var query = "SELECT Monto_pago, Descripcion, Fecha_pago_programada FROM Pagos";
 
-            using var command = new SqlCommand(query, connection);
-            await connection.OpenAsync();
-            using var reader = await command.ExecuteReaderAsync();
+            //using var command = new SqlCommand(query, connection);
+            //await connection.OpenAsync();
+            //using var reader = await command.ExecuteReaderAsync();
 
-            while (await reader.ReadAsync())
-            {
-                pagos.Add(new Pago
-                {
-                    Monto_pago = reader.GetDecimal(0),
-                    Descripcion = reader.GetString(1),
-                    Fecha_pago_programada = reader.GetDateTime(2)
-                });
-            }
+            //while (await reader.ReadAsync())
+            //{
+            //    pagos.Add(new Pago
+            //    {
+            //        Monto_pago = reader.GetDecimal(0),
+            //        Descripcion = reader.GetString(1),
+            //        Fecha_pago_programada = reader.GetDateTime(2)
+            //    });
+            //}
 
-            var eventos = pagos.Select(p => new
-            {
-                title = $"{p.Monto_pago}€ - {p.Descripcion}",
-                start = p.Fecha_pago_programada.ToString("yyyy-MM-dd")
-            });
+            //var eventos = pagos.Select(p => new
+            //{
+            //    title = $"{p.Monto_pago}€ - {p.Descripcion}",
+            //    start = p.Fecha_pago_programada.ToString("yyyy-MM-dd")
+            //});
 
-            ViewBag.EventosJson = JsonSerializer.Serialize(eventos);
+            //ViewBag.EventosJson = JsonSerializer.Serialize(eventos);
             return View();
         }
         [Authorize(Policy = "UsuarioAutenticado")]

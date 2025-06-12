@@ -1,4 +1,5 @@
 ﻿using ManejoAlquileres.Models;
+using ManejoAlquileres.Models.DTO;
 
 namespace ManejoAlquileres.Service.Interface
 {
@@ -12,5 +13,6 @@ namespace ManejoAlquileres.Service.Interface
         Task<bool> Existe(string id);
         Task<List<Pago>> ObtenerPagosARealizarPorUsuarioAsync(string idUsuario);
         Task<List<Pago>> ObtenerPagosARecibirPorUsuarioAsync(string idUsuario);
+        Task<List<PagoConContratoDTO>> ObtenerPagosConDatosContrato();
     }
 }

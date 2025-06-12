@@ -7,7 +7,6 @@
 <div class="container my-4">
     <h2 class="mb-4 text-center">@ViewData["Title"]</h2>
 
-    @* Mostrar mensajes de éxito o error *@
     @if (TempData["MensajeExito"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
@@ -63,7 +62,6 @@
                 </div>
             </div>
 
-            @* Tabla de habitaciones asociadas *@
             <div class="mt-5">
                 <h4>Habitaciones</h4>
 
@@ -99,7 +97,6 @@
                 }
             </div>
 
-            @* Tabla de gastos del inmueble *@
             <div class="mt-5">
                 <h4>Gastos del Inmueble</h4>
 

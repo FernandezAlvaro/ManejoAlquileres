@@ -1,0 +1,41 @@
+﻿@model List<ManejoAlquileres.Models.Contrato>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Todos los Contratos";
+    var isAdmin = User.IsInRole("Administrador");
+}
+
+<h2>Todos los Contratos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID Contrato</th>
+            <th>Dirección</th>
+            <th>Fecha de Inicio</th>
+            <th>Fecha de Fin</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contrato in Model)
+        {
+            <tr>
+                <td>@contrato.Id_contrato</td>
+                <td>@contrato.Propiedad?.Direccion</td>
+                <td>@contrato.Fecha_inicio.ToShortDateString()</td>
+                <td>@contrato.Fecha_fin.ToShortDateString()</td>
+                <td>
+                    <a class="btn btn-sm btn-info" asp-action="Detalles" asp-route-id="@contrato.Id_contrato">Detalles</a>
+
+                    @if (isAdmin)
+                    {
+                        <a class="btn btn-sm btn-warning" asp-action="Editar" asp-route-id="@contrato.Id_contrato">Editar</a>
+                        <a class="btn btn-sm btn-danger" asp-action="Eliminar" asp-route-id="@contrato.Id_contrato">Eliminar</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

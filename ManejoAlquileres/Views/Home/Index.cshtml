@@ -1,18 +1,63 @@
-﻿<link href="~/lib/fullcalendar/main.min.css" rel="stylesheet" asp-append-version="true" />
-<script src="~/lib/fullcalendar/main.min.js" asp-append-version="true"></script>
+﻿<!-- Estilos de FullCalendar -->
+<link href="~/lib/fullcalendar/main.min.css" rel="stylesheet" />
 
-<div id="calendar" class="mt-4"></div>
+<!-- Scripts -->
+<script src="~/lib/fullcalendar/main.min.js"></script>
+<script src="~/lib/fullcalendar/locales/es.js"></script> <!-- Soporte para español -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Contenedor del calendario -->
+<div id="calendar" class="mt-4" style="min-height: 600px; border: 1px solid #ccc;"></div>
+
+<!-- Leyenda de colores -->
+<div class="mt-3" style="font-family: Arial, sans-serif; font-size: 14px;">
+    <strong>Leyenda de colores:</strong>
+    <ul style="list-style: none; padding-left: 0; margin-top: 5px;">
+        <li><span style="display:inline-block;width:15px;height:15px;background:#ff6666;margin-right:8px;border-radius:3px;"></span>Pagos pendientes por realizar (debe pagar)</li>
+        <li><span style="display:inline-block;width:15px;height:15px;background:#3366cc;margin-right:8px;border-radius:3px;"></span>Pagos pendientes por recibir (debe recibir)</li>
+        <li><span style="display:inline-block;width:15px;height:15px;background:#66b266;margin-right:8px;border-radius:3px;"></span>Pagos ya realizados</li>
+    </ul>
+</div>
 
 <script>
-    var calendar;
+    document.addEventListener('DOMContentLoaded', async function () {
+        try {
+            const response = await fetch('/Home/ObtenerPagosCalendario');
+            const eventos = await response.json();
+            console.log("Eventos obtenidos:", eventos);
 
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'es',
-            events: @Html.Raw(ViewBag.EventosJson)
-        });
-        calendar.render();
+            const calendarEl = document.getElementById('calendar');
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                events: eventos, // puede estar vacío
+                eventClick: function(info) {
+                    const e = info.event.extendedProps;
+                    let html = `
+                        <p><strong>Descripción:</strong> ${e.descripcion ?? 'Sin descripción'}</p>
+                        <p><strong>Monto:</strong> ${e.monto}€</p>
+                        <p><strong>Fecha programada:</strong> ${e.fecha}</p>
+                        <p><strong>Tipo:</strong> ${e.tipo}</p>`;
+
+                    if (e.archivo) {
+                        html += `<p><a href="/Home/DescargarFactura?nombreArchivo=${e.archivo}" download>Descargar archivo</a></p>`;
+                    }
+
+                    Swal.fire({
+                        title: 'Detalle del Pago',
+                        html: html,
+                        icon: 'info',
+                        confirmButtonText: 'Cerrar'
+                    });
+                }
+            });
+
+            calendar.render();
+
+        } catch (error) {
+            console.error("Error al cargar eventos del calendario:", error);
+            Swal.fire("Error", "No se pudieron cargar los eventos.", "error");
+        }
     });
 </script>

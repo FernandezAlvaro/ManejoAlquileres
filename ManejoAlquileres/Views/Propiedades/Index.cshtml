@@ -105,7 +105,7 @@
                                 <td>@alquiler.Fianza.ToString("N2")</td>
                                 <td>@(alquiler.EsHabitacion ? "Sí" : "No")</td>
                                 <td class="text-center">
-                                    <a asp-action="Detalles" asp-route-id="@alquiler.PropiedadId" class="btn btn-sm btn-info">Ver</a>
+                                    <a asp-action="VerDetalles" asp-route-id="@alquiler.PropiedadId" class="btn btn-sm btn-info">Ver</a>
                                 </td>
                             </tr>
                         }

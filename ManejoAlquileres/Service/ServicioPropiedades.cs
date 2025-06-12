@@ -92,5 +92,21 @@ namespace ManejoAlquileres.Service
                 .Distinct()
                 .ToListAsync();
         }
+
+        public async Task<List<Propiedad>> ObtenerPropiedadesComoPropietarioExportarAsync()
+        {
+            var idUsuario = ObtenerUsuarioId();
+
+            return await _context.Propiedades
+                .Where(p => p.Usuarios.Any(pu => pu.UsuarioId == idUsuario)) 
+                .Include(p => p.Usuarios)
+                    .ThenInclude(pu => pu.Usuario)
+                .Include(p => p.Habitaciones)
+                .Include(p => p.Contratos)
+                .Include(p => p.GastoInmueble)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
     }
 }

@@ -14,5 +14,8 @@ namespace ManejoAlquileres.Service.Interface
         Task<List<Pago>> ObtenerPagosARealizarPorUsuarioAsync(string idUsuario);
         Task<List<Pago>> ObtenerPagosARecibirPorUsuarioAsync(string idUsuario);
         Task<List<PagoConContratoDTO>> ObtenerPagosConDatosContrato();
+        Task<List<Contrato>> ObtenerContratosPorInquilinoAsync(string usuarioId);
+        Task<List<Contrato>> ObtenerContratosPorPropietarioAsync(string usuarioId);
+        Task<List<Pago>> ObtenerPagosPorContratoAsync(string contratoId);
     }
 }

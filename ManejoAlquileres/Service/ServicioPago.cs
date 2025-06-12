@@ -100,5 +100,30 @@ namespace ManejoAlquileres.Service
                 })
                 .ToListAsync();
         }
+        public async Task<List<Contrato>> ObtenerContratosPorInquilinoAsync(string usuarioId)
+        {
+            return await _context.Contratos
+                .Include(c => c.Propiedad)
+                .Include(c => c.Inquilinos)
+                .Where(c => c.Inquilinos.Any(i => i.UsuarioId == usuarioId))
+                .ToListAsync();
+        }
+
+        public async Task<List<Contrato>> ObtenerContratosPorPropietarioAsync(string usuarioId)
+        {
+            return await _context.Contratos
+                .Include(c => c.Propiedad)
+                .Include(c => c.Propietarios)
+                .Where(c => c.Propietarios.Any(p => p.UsuarioId == usuarioId))
+                .ToListAsync();
+        }
+
+        public async Task<List<Pago>> ObtenerPagosPorContratoAsync(string contratoId)
+        {
+            return await _context.Pagos
+                .Where(p => p.Id_contrato== contratoId)
+                .ToListAsync();
+        }
+
     }
 }

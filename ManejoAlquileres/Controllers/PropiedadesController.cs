@@ -666,7 +666,39 @@ namespace ManejoAlquileres.Controllers
             TempData["MensajeExito"] = "Propiedad eliminada correctamente.";
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> VerDetalles(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
 
+            var usuarioId = ObtenerUsuarioId();
+
+            var contratoInquilino = await _context.ContratosInquilinos
+                .Include(ci => ci.Contrato)
+                    .ThenInclude(c => c.Propiedad)
+                .FirstOrDefaultAsync(ci => ci.UsuarioId == usuarioId && ci.Contrato.Id_propiedad == id);
+
+            if (contratoInquilino == null)
+                return Forbid();
+
+            var propiedad = contratoInquilino.Contrato.Propiedad;
+
+            var vm = new PropiedadViewModel
+            {
+                Id = propiedad.Id_propiedad,
+                Direccion = propiedad.Direccion,
+                ReferenciaCatastral = propiedad.Referencia_catastral,
+                EstadoPropiedad = propiedad.Estado_propiedad,
+                ValorAdquisicion = propiedad.Valor_adquisicion,
+                ValorCatastralPiso = propiedad.Valor_catastral_piso,
+                ValorCatastralTerreno = propiedad.Valor_catastral_terreno,
+                FechaAdquisicion = propiedad.Fecha_adquisicion,
+                Descripcion = propiedad.Descripcion,
+                NumHabitaciones = propiedad.numHabitaciones
+            };
+
+            return View("VerDetalles", vm); // Asegúrate de que la vista esté en Views/Propiedades/
+        }
         private static void ActualizarPropiedadDesdeViewModel(Propiedad propiedad, PropiedadViewModel vm)
         {
             propiedad.Direccion = vm.Direccion;

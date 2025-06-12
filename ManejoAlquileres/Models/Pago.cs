@@ -16,15 +16,15 @@ namespace ManejoAlquileres.Models
         [Required]
         public DateTime Fecha_pago_programada { get; set; }
 
-        public DateTime Fecha_pago_real { get; set; }
+        public DateTime? Fecha_pago_real { get; set; }
 
         [Required]
         public decimal Monto_pago { get; set; }
 
         [StringLength(300)]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [StringLength(300)]
-        public string Archivo_factura { get; set; }
+        public string? Archivo_factura { get; set; }
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.OpenApi.Models;
 using Optivem.Framework.Core.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
-// Agregar servicios
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
 {
@@ -57,7 +56,7 @@ builder.Services.AddScoped<IServicioPago, ServicioPago>();
 builder.Services.AddScoped<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddScoped<IServicioPropiedades, ServicioPropiedades>();
 builder.Services.AddScoped<IGeneradorIdsService, GeneradorIdsService>();
-
+builder.Services.AddScoped<IContratoInquilino, ServicioContratoInquilino>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

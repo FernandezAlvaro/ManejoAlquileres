@@ -20,12 +20,16 @@ namespace ManejoAlquileres.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHabitacionesPorPropiedad(string id)
         {
+            Console.WriteLine($"API llamada con id={id}");
+
             var habitaciones = await _context.Habitaciones
                 .Where(h => h.Id_propiedad == id)
                 .Select(h => new {
                     id_habitacion = h.Id_habitacion,
                     descripcion = h.Descripcion
                 }).ToListAsync();
+
+            Console.WriteLine($"Habitaciones encontradas: {habitaciones.Count}");
 
             return Ok(habitaciones);
         }

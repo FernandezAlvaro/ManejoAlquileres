@@ -1,0 +1,107 @@
+﻿@model ManejoAlquileres.Models.DTO.PagosSeparadosDTO
+@{
+    ViewData["Title"] = "Pagos";
+    var fechaDefecto = new DateTime(1, 1, 1);
+}
+
+<h2>Pagos</h2>
+
+<div class="mb-4">
+    <strong>Leyenda de estados:</strong>
+    <span class="badge bg-warning text-dark">Pendiente</span> Pago aún no realizado &nbsp;&nbsp;
+    <span class="badge bg-success text-white">Pagado</span> Pago completado
+</div>
+
+<h3>Pagos como Inquilino</h3>
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Propiedad</th>
+            <th>Fecha Programada</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var grupoPropiedad in Model.PagosComoInquilino.GroupBy(p => p.Direccion_propiedad))
+        {
+            <tr class="table-primary">
+                <td colspan="5"><strong>@grupoPropiedad.Key</strong></td>
+            </tr>
+
+            {
+                var pagosOrdenados = grupoPropiedad.OrderBy(p => p.Fecha_pago_programada).ToList();
+
+                foreach (var pago in pagosOrdenados)
+                {
+                    bool esPendiente = pago.Fecha_pago_real == fechaDefecto;
+                    string rowClass = esPendiente ? "table-warning" : "table-success";
+                    string estadoTexto = esPendiente ? "Pendiente" : "Pagado";
+
+                    <tr class="@rowClass">
+                        <td>@pago.Direccion_propiedad</td>
+                        <td>@pago.Fecha_pago_programada.ToString("yyyy-MM-dd")</td>
+                        <td>@pago.Monto_pago.ToString("C")</td>
+                        <td>@estadoTexto</td>
+                        <td class="d-flex gap-1">
+                            <a asp-action="Editar" asp-route-id="@pago.Id_pago" class="btn btn-sm btn-primary">Editar</a>
+
+                            @if (esPendiente)
+                            {
+                                <form asp-action="Pagar" asp-route-id="@pago.Id_pago" method="post" onsubmit="return confirm('¿Confirmar que el pago fue realizado?');">
+                                    <button type="submit" class="btn btn-sm btn-success">Pagar</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+
+</table>
+
+<h3 class="mt-5">Pagos como Propietario</h3>
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Propiedad</th>
+            <th>Fecha Programada</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var grupoPropiedad in Model.PagosComoPropietario.GroupBy(p => p.Direccion_propiedad))
+        {
+            <tr class="table-primary">
+                <td colspan="5"><strong>@grupoPropiedad.Key</strong></td>
+            </tr>
+
+            {
+                var pagosOrdenados = grupoPropiedad
+                .OrderBy(p => p.Fecha_pago_programada)
+                .ToList();
+
+                foreach (var pago in pagosOrdenados)
+                {
+                    bool esPendiente = pago.Fecha_pago_real == fechaDefecto;
+                    string rowClass = esPendiente ? "table-warning" : "table-success";
+                    string estadoTexto = esPendiente ? "Pendiente" : "Pagado";
+
+                    <tr class="@rowClass">
+                        <td>@pago.Direccion_propiedad</td>
+                        <td>@pago.Fecha_pago_programada.ToString("yyyy-MM-dd")</td>
+                        <td>@pago.Monto_pago.ToString("C")</td>
+                        <td>@estadoTexto</td>
+                        <td>
+                            <a asp-action="Ver" asp-route-id="@pago.Id_pago" class="btn btn-sm btn-primary">Ver</a>
+                        </td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>

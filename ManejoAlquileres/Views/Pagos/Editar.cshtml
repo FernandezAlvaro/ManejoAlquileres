@@ -1,0 +1,76 @@
+﻿@model ManejoAlquileres.Models.Pago
+
+@{
+    ViewData["Title"] = "Editar Pago";
+
+    var fechaPagoReal = Model.Fecha_pago_real;
+    bool esPendiente = fechaPagoReal == new DateTime(1, 1, 1);
+    string estadoPagoClase = esPendiente ? "bg-warning text-dark" : "bg-success text-white";
+    string estadoTexto = esPendiente ? "Pendiente" : "Pagado";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState[""].Errors)
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+}
+
+<div class="alert @estadoPagoClase">
+    <strong>Estado del Pago:</strong> @estadoTexto
+</div>
+
+<form asp-action="Editar" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id_pago" />
+
+    <div class="form-group mb-3">
+        <label class="form-label">Fecha Programada</label>
+        <input class="form-control" value="@Model.Fecha_pago_programada.ToString("yyyy-MM-dd")" disabled />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Fecha_pago_real" class="form-label"></label>
+        <input asp-for="Fecha_pago_real" class="form-control" type="date" />
+        <span asp-validation-for="Fecha_pago_real" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-4">
+        <label class="form-label">Archivo de Factura Actual</label><br />
+        @if (!string.IsNullOrEmpty(Model.Archivo_factura))
+        {
+            <a href="~/@Model.Archivo_factura" target="_blank">Ver archivo actual</a>
+        }
+        else
+        {
+            <span>No hay archivo cargado.</span>
+        }
+    </div>
+
+    <div class="form-group mb-4">
+        <label class="form-label">Nuevo Archivo de Factura</label>
+        <input type="file" name="archivoFacturaArchivo" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Descripcion" class="form-label"></label>
+        <input asp-for="Descripcion" class="form-control" />
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group d-flex gap-2 mt-3">
+        <input type="submit" value="Guardar" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

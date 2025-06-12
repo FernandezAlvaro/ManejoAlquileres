@@ -46,5 +46,23 @@ namespace ManejoAlquileres.Service
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task DeleteByContratoIdAsync(string contratoId)
+        {
+            var entities = await _context.ContratosInquilinos
+                .Where(ci => ci.ContratoId == contratoId)
+                .ToListAsync();
+
+            if (entities.Any())
+            {
+                _context.ContratosInquilinos.RemoveRange(entities);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task AddRangeAsync(List<ContratoInquilino> inquilinos)
+        {
+            _context.ContratosInquilinos.AddRange(inquilinos);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

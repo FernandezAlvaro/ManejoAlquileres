@@ -1,126 +1,104 @@
 ﻿using System.Data;
-using Dapper;
 using ManejoAlquileres.Models;
+using ManejoAlquileres.Models.DTO;
 using ManejoAlquileres.Service.Interface;
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManejoAlquileres.Service
 {
-    public class ServicioPago:IServicioPago
+    public class ServicioPago : IServicioPago
     {
-        private readonly string connectionString;
+        private readonly ApplicationDbContext _context;
 
-        public ServicioPago(IConfiguration configuration)
+        public ServicioPago(ApplicationDbContext context)
         {
-            connectionString = configuration.GetConnectionString("DefaultConnection")!;
+            _context = context;
         }
 
         public async Task Crear(Pago pago)
         {
-            using var connection = new SqlConnection(connectionString);
-            var query = @"INSERT INTO Pago 
-                          (Id_pago, Id_contrato, Fecha_pago, Monto, Metodo_pago, Archivo_pdf)
-                          VALUES (@Id_pago, @Id_contrato, @Fecha_pago, @Monto, @Metodo_pago, @Archivo_pdf)";
-            await connection.ExecuteAsync(query, pago);
+            _context.Pagos.Add(pago);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Pago> ObtenerPorId(string id)
         {
-            using var connection = new SqlConnection(connectionString);
-            return await connection.QueryFirstOrDefaultAsync<Pago>(
-                "SELECT * FROM Pago WHERE Id_pago = @Id", new { Id = id });
+            return await _context.Pagos
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Propiedad)
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Inquilinos)
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Propietarios)
+                .FirstOrDefaultAsync(p => p.Id_pago == id);
         }
 
         public async Task<IEnumerable<Pago>> ObtenerTodos()
         {
-            using var connection = new SqlConnection(connectionString);
-            return await connection.QueryAsync<Pago>("SELECT * FROM Pago");
+            return await _context.Pagos
+                .Include(p => p.Contrato)
+                .ToListAsync();
         }
 
         public async Task Actualizar(Pago pago)
         {
-            using var connection = new SqlConnection(connectionString);
-            var query = @"UPDATE Pago
-                          SET Id_contrato = @Id_contrato, Fecha_pago = @Fecha_pago, 
-                              Monto = @Monto, Metodo_pago = @Metodo_pago, Archivo_pdf = @Archivo_pdf
-                          WHERE Id_pago = @Id_pago";
-            await connection.ExecuteAsync(query, pago);
+            _context.Pagos.Update(pago);
+            await _context.SaveChangesAsync();
         }
 
         public async Task Borrar(string id)
         {
-            using var connection = new SqlConnection(connectionString);
-            await connection.ExecuteAsync("DELETE FROM Pago WHERE Id_pago = @Id", new { Id = id });
+            var pago = await _context.Pagos.FindAsync(id);
+            if (pago != null)
+            {
+                _context.Pagos.Remove(pago);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<bool> Existe(string id)
         {
-            using var connection = new SqlConnection(connectionString);
-            var resultado = await connection.QueryFirstOrDefaultAsync<int>(
-                "SELECT 1 FROM Pago WHERE Id_pago = @Id", new { Id = id });
-            return resultado == 1;
+            return await _context.Pagos.AnyAsync(p => p.Id_pago == id);
         }
+
         public async Task<List<Pago>> ObtenerPagosARealizarPorUsuarioAsync(string idUsuario)
         {
-            var pagos = new List<Pago>();
-
-            using var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync();
-
-            var query = @"  
-                       SELECT p.id_pago, p.id_contrato, p.monto_pago, p.descripcion, p.fecha_pago_programada, p.fecha_pago_real, p.Archivo_factura
-                       FROM pago p  
-                       INNER JOIN contrato c ON p.id_contrato = c.id_contrato  
-                       WHERE c.Id_propietario = @IdUsuario";
-
-            using var cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                pagos.Add(new Pago
-                {
-                    Id_pago = reader.GetString(0),
-                    Id_contrato = reader.GetString(1),
-                    Monto_pago = reader.GetDecimal(2),
-                    Descripcion = reader.GetString(3),
-                    Fecha_pago_programada = reader.GetDateTime(4)
-                });
-            }
-            return pagos;
+            return await _context.Pagos
+                .Where(p => p.Contrato.Propietarios.Any(cp => cp.UsuarioId == idUsuario))
+                .ToListAsync();
         }
+
         public async Task<List<Pago>> ObtenerPagosARecibirPorUsuarioAsync(string idUsuario)
         {
-            var pagos = new List<Pago>();
-
-            using var connection = new SqlConnection(connectionString);
-            await connection.OpenAsync();
-
-            var query = @"  
-                       SELECT p.id_pago, p.id_contrato, p.monto_pago, p.descripcion, p.fecha_pago_programada, p.fecha_pago_real, p.Archivo_factura
-                       FROM pago p  
-                       INNER JOIN contrato c ON p.id_contrato = c.id_contrato  
-                       WHERE c.Id_propietario = @IdUsuario";
-
-            using var cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@IdUsuario", idUsuario);
-
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                pagos.Add(new Pago
-                {
-                    Id_pago = reader.GetString(0),
-                    Id_contrato = reader.GetString(1),
-                    Monto_pago = reader.GetDecimal(2),
-                    Descripcion = reader.GetString(3),
-                    Fecha_pago_programada = reader.GetDateTime(4)
-                });
-            }
-            return pagos;
+            return await _context.Pagos
+                .Where(p => p.Contrato.Propietarios.Any(cp => cp.UsuarioId == idUsuario))
+                .ToListAsync();
         }
+        public async Task<List<PagoConContratoDTO>> ObtenerPagosConDatosContrato()
+        {
+            return await _context.Pagos
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Inquilinos)
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Propietarios)
+                .Select(p => new PagoConContratoDTO
+                {
+                    Id_pago = p.Id_pago,
+                    Fecha_pago_programada = p.Fecha_pago_programada,
+                    Fecha_pago_real = p.Fecha_pago_real,
+                    Monto_pago = p.Monto_pago,
+                    Descripcion = p.Descripcion,
+                    Archivo_factura = p.Archivo_factura,
 
+                    Id_contrato = p.Contrato.Id_contrato,
+                    Direccion_propiedad = p.Contrato.Propiedad.Direccion,
+                    Fecha_inicio_contrato = p.Contrato.Fecha_inicio,
+                    Fecha_fin_contrato = p.Contrato.Fecha_fin,
 
+                    Id_inquilino = p.Contrato.Inquilinos.FirstOrDefault().UsuarioId,
+                    Id_duenio = p.Contrato.Propietarios.FirstOrDefault().UsuarioId
+                })
+                .ToListAsync();
+        }
     }
 }

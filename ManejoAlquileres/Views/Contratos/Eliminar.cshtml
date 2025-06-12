@@ -1,0 +1,13 @@
+﻿@model ManejoAlquileres.Models.Contrato
+
+<h2>Confirmar eliminación</h2>
+
+<div class="alert alert-warning">
+    <p>¿Seguro que quieres eliminar el contrato <strong>@Model.Id_contrato</strong> de la propiedad <strong>@Model.Propiedad?.Direccion</strong>?</p>
+</div>
+
+<form asp-action="Eliminar" method="post">
+    <input type="hidden" asp-for="Id_contrato" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="VerTodosLosContratos" class="btn btn-secondary">Cancelar</a>
+</form>

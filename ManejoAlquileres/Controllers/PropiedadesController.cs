@@ -638,8 +638,6 @@ namespace ManejoAlquileres.Controllers
             };
 
             return View(vm);
-
-            return View(vm);
         }
 
         [HttpPost]

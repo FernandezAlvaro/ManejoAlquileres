@@ -1,4 +1,16 @@
-﻿@model ManejoAlquileres.Models.Helpers.ContratoViewModel
+﻿<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#InquilinosSeleccionados').select2({
+            placeholder: "Seleccione uno o más inquilinos"
+        });
+    });
+</script>
+@model ManejoAlquileres.Models.Helpers.ContratoViewModel
 
 @{
     ViewData["Title"] = "Crear Contrato";
@@ -111,10 +123,13 @@
     </div>
 
     <div class="form-group">
-        <label for="InquilinoId">Inquilino</label>
-        <select id="InquilinoId" name="InquilinoId" class="form-control"
+        <label for="InquilinosSeleccionados">Inquilinos</label>
+        @{
+            var usuarios = ViewBag.Usuarios as IEnumerable<ManejoAlquileres.Models.Usuario>;
+            var usuariosList = usuarios != null ? usuarios : Enumerable.Empty<ManejoAlquileres.Models.Usuario>();
+        }
+        <select id="InquilinosSeleccionados" name="InquilinosSeleccionados" class="form-control" multiple
                 asp-items="@(new SelectList(ViewBag.Usuarios, "Id_usuario", "NombreCompleto"))">
-            <option value="">Seleccione un inquilino</option>
         </select>
     </div>
 
@@ -122,30 +137,31 @@
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
 <script>
-    $(document).ready(function () {
-        $('#PropiedadId').on('change', function () {
-            var propiedadId = $(this).val();
+           $(document).ready(function() {
+      $('#PropiedadId').on('change', function () {
+        var propiedadId = $(this).val();
 
-            if (propiedadId) {
-                $.get('/api/habitaciones/' + propiedadId, function (data) {
-                    let opciones = '';
+        if (propiedadId) {
+          $.get('/api/habitaciones/' + propiedadId, function (data) {
+            console.log("Datos recibidos:", data);
+            let opciones = '';
 
-                    if (data.length > 0) {
-                        opciones += '<option value="">Seleccione una habitación</option>';
-                        data.forEach(function (habitacion) {
-                            opciones += '<option value="' + habitacion.id_habitacion + '">' + habitacion.descripcion + '</option>';
-                        });
-                    } else {
-                        opciones += '<option value="">No hay habitaciones disponibles</option>';
-                    }
-
-                    $('#HabitacionId').html(opciones);
-                }).fail(function () {
-                    $('#HabitacionId').html('<option value="">Error cargando habitaciones</option>');
-                });
+            if (data.length > 0) {
+              opciones += '<option value="">Seleccione una habitación</option>';
+              data.forEach(function (habitacion) {
+                opciones += '<option value="' + habitacion.id_habitacion + '">' + habitacion.descripcion + '</option>';
+              });
             } else {
-                $('#HabitacionId').html('<option value="">Seleccione una propiedad primero</option>');
+              opciones += '<option value="">No hay habitaciones disponibles</option>';
             }
-        });
+
+            $('#HabitacionId').html(opciones);
+          }).fail(function () {
+            $('#HabitacionId').html('<option value="">Error cargando habitaciones</option>');
+          });
+        } else {
+          $('#HabitacionId').html('<option value="">Seleccione una propiedad primero</option>');
+        }
+      });
     });
 </script>

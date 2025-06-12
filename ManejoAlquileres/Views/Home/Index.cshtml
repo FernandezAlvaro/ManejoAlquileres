@@ -19,6 +19,12 @@
     </ul>
 </div>
 
+<div class="mt-3">
+    <a href="@Url.Action("ExportarVista", "Home")" class="btn btn-success">
+        Exportar pagos
+    </a>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         try {
@@ -31,7 +37,7 @@
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'es',
-                events: eventos, // puede estar vacío
+                events: eventos,
                 eventClick: function(info) {
                     const e = info.event.extendedProps;
                     let html = `

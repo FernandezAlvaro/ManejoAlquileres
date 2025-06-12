@@ -68,5 +68,9 @@ namespace ManejoAlquileres.Service
             var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return Task.FromResult(userId);
         }
+        public async Task<List<Usuario>> ObtenerUsuarios()
+        {
+            return await _context.Usuarios.ToListAsync();
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace ManejoAlquileres.Service.Interface
         Task Borrar(string id);
         Task<bool> Existe(string email, string id = null);
         Task<string> ObtenerUsuarioId();
+        Task<List<Usuario>> ObtenerUsuarios();
     }
 }

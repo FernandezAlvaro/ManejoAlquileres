@@ -1,5 +1,6 @@
 ﻿using ManejoAlquileres.Models;
 using ManejoAlquileres.Service.Interface;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -88,12 +89,42 @@ namespace ManejoAlquileres.Controllers
                 return View("UsuarioForm", usuario);
             }
 
-            await _servicioUsuarios.Actualizar(usuario);
+            // Obtener la instancia original que ya está siendo trackeada
+            var usuarioOriginal = await _servicioUsuarios.ObtenerPorId(id);
+            if (usuarioOriginal == null)
+                return NotFound();
+
+            var idUsuarioActual = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            bool cambioRolAdmin = usuarioOriginal.EsAdministrador != usuario.EsAdministrador;
+            bool esElMismoUsuario = idUsuarioActual == usuario.Id_usuario;
+
+            // Actualizar los campos de la instancia original
+            usuarioOriginal.Nombre = usuario.Nombre;
+            usuarioOriginal.Apellidos = usuario.Apellidos;
+            usuarioOriginal.Contraseña = usuario.Contraseña;
+            usuarioOriginal.NIF = usuario.NIF;
+            usuarioOriginal.Direccion = usuario.Direccion;
+            usuarioOriginal.Telefono = usuario.Telefono;
+            usuarioOriginal.Email = usuario.Email;
+            usuarioOriginal.Informacion_bancaria = usuario.Informacion_bancaria;
+            usuarioOriginal.EsAdministrador = usuario.EsAdministrador;
+
+            // Guardar cambios solo sobre la instancia original
+            await _servicioUsuarios.Actualizar(usuarioOriginal);
+
+            if (cambioRolAdmin && esElMismoUsuario)
+            {
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Login", "Cuenta");
+            }
 
             TempData["Mensaje"] = "Usuario actualizado correctamente.";
             TempData["TipoMensaje"] = "success";
             return RedirectToAction(nameof(Index));
         }
+
+
+
 
         public async Task<IActionResult> Delete(string id)
         {

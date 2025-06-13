@@ -225,7 +225,7 @@ namespace ManejoAlquileres.Controllers
                 .Where(r => r.UsuarioId != usuarioId)
                 .Sum(r => r.PorcentajePropiedad);
 
-            if (nuevoPorcentaje + sumaOtrosPorcentajes > 1)
+            if (nuevoPorcentaje + sumaOtrosPorcentajes > 100)
             {
                 ModelState.AddModelError(nameof(vm.PorcentajePropiedad), $"La suma de porcentajes excede 100%. Actualmente está en {sumaOtrosPorcentajes}% para otros usuarios.");
                 return View(vm);
@@ -561,7 +561,23 @@ namespace ManejoAlquileres.Controllers
 
             return View(vm);
         }
+        private async Task CargarDatosUsuarios(PropiedadAdminViewModel vm)
+        {
+            var idsUsuarios = vm.PorcentajesUsuarios.Select(u => u.UsuarioId).ToList();
 
+            var usuarios = await _context.Usuarios
+                .Where(u => idsUsuarios.Contains(u.Id_usuario))
+                .ToDictionaryAsync(u => u.Id_usuario);
+
+            foreach (var item in vm.PorcentajesUsuarios)
+            {
+                if (usuarios.TryGetValue(item.UsuarioId, out var usuario))
+                {
+                    item.NombreCompleto = usuario.Nombre +" "+ usuario.Apellidos;
+                    item.NIF = usuario.NIF;
+                }
+            }
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarAdmin(string id, PropiedadAdminViewModel vm)
@@ -570,7 +586,11 @@ namespace ManejoAlquileres.Controllers
                 return NotFound();
 
             if (!ModelState.IsValid)
+            {
+                await CargarDatosUsuarios(vm);
                 return View(vm);
+            }
+                
 
             var propiedad = await _context.Propiedades
                 .Include(p => p.Usuarios)
@@ -585,12 +605,14 @@ namespace ManejoAlquileres.Controllers
             if (existeRef)
             {
                 ModelState.AddModelError(nameof(vm.ReferenciaCatastral), "La referencia catastral ya está registrada.");
+                await CargarDatosUsuarios(vm);
                 return View(vm);
             }
             var sumaPorcentajes = vm.PorcentajesUsuarios.Sum(u => u.Porcentaje);
             if (sumaPorcentajes > 100)
             {
                 ModelState.AddModelError("", "La suma de los porcentajes de propiedad no puede superar el 100%.");
+                await CargarDatosUsuarios(vm);
                 return View(vm);
             }
 

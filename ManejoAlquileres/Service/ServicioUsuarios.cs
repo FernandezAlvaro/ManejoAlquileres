@@ -37,6 +37,18 @@ namespace ManejoAlquileres.Service
 
         public async Task Actualizar(Usuario usuario)
         {
+            var original = await _context.Usuarios.FindAsync(usuario.Id_usuario);
+            if (original == null) throw new Exception("Usuario no encontrado");
+
+            original.Nombre = usuario.Nombre;
+            original.Apellidos = usuario.Apellidos;
+            original.Contraseña = usuario.Contraseña;
+            original.NIF = usuario.NIF;
+            original.Direccion = usuario.Direccion;
+            original.Telefono = usuario.Telefono;
+            original.Email = usuario.Email;
+            original.Informacion_bancaria = usuario.Informacion_bancaria;
+            original.EsAdministrador = usuario.EsAdministrador;
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
         }

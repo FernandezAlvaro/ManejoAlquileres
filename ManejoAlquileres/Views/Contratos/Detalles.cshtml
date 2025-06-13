@@ -32,7 +32,7 @@
                 @foreach (var inquilino in Model.Inquilinos)
                 {
                     <li class="list-group-item">
-                        @inquilino.Usuario.Nombre @inquilino.Usuario.Apellidos (NIF: @inquilino.Usuario.NIF)
+                        @inquilino.Usuario.Nombre @inquilino.Usuario.Apellidos <strong>NIF:</strong> @inquilino.Usuario.NIF
                     </li>
                 }
             </ul>
@@ -55,7 +55,7 @@
                 @foreach (var propietario in Model.Propietarios)
                 {
                     <li class="list-group-item">
-                        @propietario.Usuario.Nombre @propietario.Usuario.Apellidos (NIF: @propietario.Usuario.NIF)
+                        @propietario.Usuario.Nombre @propietario.Usuario.Apellidos <strong>NIF:</strong> @propietario.Usuario.NIF
                     </li>
                 }
             </ul>
@@ -76,7 +76,7 @@
     <div class="card-body">
         <p><strong>Fecha de Inicio:</strong> @(Model.Fecha_inicio.ToShortDateString())</p>
         <p><strong>Fecha de Fin:</strong> @(Model.Fecha_fin.ToShortDateString() ?? "No especificada")</p>
-        <p><strong>Fianza:</strong> @(Model.Fianza.ToString("C") ?? "No especificado")</p>
+        <p><strong>Fianza:</strong> @(Model.Fianza.ToString("F2") + "€" ?? "No especificado")</p>
         <p><strong>Clausula_prorroga:</strong> @(Model.Clausula_prorroga ?? "No especificado")</p>
     </div>
 </div>
@@ -92,7 +92,7 @@
                 @foreach (var pago in Model.Pagos)
                 {
                     <li class="list-group-item">
-                        @pago.Fecha_pago_programada.ToShortDateString() - @pago.Monto_pago.ToString("C")
+                        @pago.Fecha_pago_programada.ToShortDateString() - @pago.Monto_pago.ToString("F2") €
                     </li>
                 }
             </ul>

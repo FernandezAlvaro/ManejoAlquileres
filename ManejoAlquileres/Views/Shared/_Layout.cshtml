@@ -1,4 +1,6 @@
-﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+﻿<link rel="icon" type="image/x-icon" href="/logo/Logo.ico">
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     var user = HttpContextAccessor.HttpContext?.User;
@@ -113,7 +115,10 @@
                 </div>
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <span class="text-muted">Bienvenido, @User.Identity.Name</span>
+                    <a class="btn btn-outline-primary d-flex align-items-center" href="@Url.Action("Perfil", "Usuario")">
+                        <img src="/logo/Logo.ico" alt="Logo" width="20" height="20" class="me-2">
+                        Bienvenido, @User.Identity.Name
+                    </a>
                 }
             </header>
 

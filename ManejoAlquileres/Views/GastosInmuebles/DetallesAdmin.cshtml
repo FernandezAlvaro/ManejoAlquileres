@@ -12,7 +12,7 @@
             <dd class="col-sm-8">@Model.Tipo_gasto</dd>
 
             <dt class="col-sm-4">Monto</dt>
-            <dd class="col-sm-8">@Model.Monto_gasto €</dd>
+            <dd class="col-sm-8">@Model.Monto_gasto.ToString("F2") €</dd>
 
             <dt class="col-sm-4">Fecha de Pago</dt>
             <dd class="col-sm-8">@Model.Fecha_pago.ToShortDateString()</dd>

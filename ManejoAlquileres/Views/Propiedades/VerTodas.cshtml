@@ -31,13 +31,13 @@
                         <tr>
                             <td>@propiedad.Direccion</td>
                             <td>@propiedad.ReferenciaCatastral</td>
-                            <td>@propiedad.ValorAdquisicion.ToString("N2") €</td>
+                            <td>@propiedad.ValorAdquisicion.ToString("F2") €</td>
                             <td>@(propiedad.EstadoPropiedad ? "Disponible" : "No disponible")</td>
                             <td>
                                 <ul class="list-unstyled mb-0">
                                     @foreach (var porcentaje in propiedad.PorcentajesUsuarios)
                                     {
-                                        <li><strong>@porcentaje.NIF - @porcentaje.NombreCompleto:</strong> @($"{porcentaje.Porcentaje:P}")</li>
+                                        <li><strong>@porcentaje.NIF - @porcentaje.NombreCompleto:</strong> @($"{porcentaje.Porcentaje} %")</li>
                                     }
                                 </ul>
                             </td>

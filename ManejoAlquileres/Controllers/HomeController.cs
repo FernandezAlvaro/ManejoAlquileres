@@ -45,7 +45,7 @@ namespace ManejoAlquileres.Controllers
             var connectionString = _config.GetConnectionString("DefaultConnection");
 
             using var connection = new SqlConnection(connectionString);
-            var query = "SELECT Monto_pago, Descripcion, Fecha_pago_programada FROM Pagos";
+            var query = "SELECT Monto_pago, Descripcion, Fecha_pago_programada, Archivo_factura FROM Pagos";
 
             using var command = new SqlCommand(query, connection);
             await connection.OpenAsync();
@@ -57,20 +57,36 @@ namespace ManejoAlquileres.Controllers
                 {
                     Monto_pago = reader.GetDecimal(0),
                     Descripcion = reader.IsDBNull(1) ? null : reader.GetString(1),
-                    Fecha_pago_programada = reader.GetDateTime(2)
+                    Fecha_pago_programada = reader.GetDateTime(2),
+                    Archivo_factura = reader.IsDBNull(3) ? null : reader.GetString(3)
                 });
             }
 
             var eventos = pagos.Select(p => new
             {
                 title = $"{p.Monto_pago}€ - {p.Descripcion}",
-                start = p.Fecha_pago_programada.ToString("yyyy-MM-dd")
+                start = p.Fecha_pago_programada.ToString("yyyy-MM-dd"),
+                descripcion = p.Descripcion,
+                monto = p.Monto_pago,
+                fecha = p.Fecha_pago_programada.ToString("dd/MM/yyyy"),
+                tipo = "Pago", 
+                archivo = p.Archivo_factura
             });
 
             ViewBag.EventosJson = JsonSerializer.Serialize(eventos);
             return View();
         }
+        //public IActionResult DescargarFactura(string idPago)
+        //{
+        //    var pago = _db.Pagos.Find(idPago);
+        //    if (pago == null)
+        //        return NotFound();
 
+        //    // Aquí generas el PDF (usando iTextSharp, PdfSharp, etc.)
+        //    var facturaPdf = GenerarFacturaPdf(pago);
+
+        //    return File(facturaPdf, "application/pdf", $"Factura_{pago.Id}.pdf");
+        //}
         [Authorize(Policy = "UsuarioAutenticado")]
         public IActionResult Privacy()
         {

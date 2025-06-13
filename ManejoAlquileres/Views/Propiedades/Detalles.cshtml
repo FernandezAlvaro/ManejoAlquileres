@@ -39,22 +39,22 @@
                         <dd class="col-sm-7">@(Model.EstadoPropiedad ? "Disponible" : "No disponible")</dd>
 
                         <dt class="col-sm-5">Valor Catastral Piso:</dt>
-                        <dd class="col-sm-7">@Model.ValorCatastralPiso.ToString("N2") €</dd>
+                        <dd class="col-sm-7">@Model.ValorCatastralPiso.ToString("F2") €</dd>
 
                         <dt class="col-sm-5">Valor Catastral Terreno:</dt>
-                        <dd class="col-sm-7">@Model.ValorCatastralTerreno.ToString("N2") €</dd>
+                        <dd class="col-sm-7">@Model.ValorCatastralTerreno.ToString("F2") €</dd>
 
                         <dt class="col-sm-5">Fecha Adquisición:</dt>
                         <dd class="col-sm-7">@Model.FechaAdquisicion.ToString("dd/MM/yyyy")</dd>
 
                         <dt class="col-sm-5">Valor Adquisición:</dt>
-                        <dd class="col-sm-7">@Model.ValorAdquisicion.ToString("N2") €</dd>
+                        <dd class="col-sm-7">@Model.ValorAdquisicion.ToString("F2") €</dd>
 
                         <dt class="col-sm-5">Valor Adquisición Total:</dt>
-                        <dd class="col-sm-7">@Model.ValorAdquisicionTotal.ToString("N2") €</dd>
+                        <dd class="col-sm-7">@Model.ValorAdquisicionTotal.ToString("F2") €</dd>
 
                         <dt class="col-sm-5">Porcentaje de Propiedad:</dt>
-                        <dd class="col-sm-7">@($"{Model.PorcentajePropiedad:P}")</dd>
+                        <dd class="col-sm-7">@($"{Model.PorcentajePropiedad} %")</dd>
 
                         <dt class="col-sm-5">Descripción:</dt>
                         <dd class="col-sm-7">@Model.Descripcion</dd>
@@ -116,7 +116,7 @@
                                 {
                                     <tr>
                                         <td>@gasto.Tipo_gasto</td>
-                                        <td>@gasto.Monto_gasto.ToString("N2") €</td>
+                                        <td>@gasto.Monto_gasto.ToString("F2") €</td>
                                         <td>@gasto.Fecha_pago.ToString("dd/MM/yyyy")</td>
                                     </tr>
                                 }

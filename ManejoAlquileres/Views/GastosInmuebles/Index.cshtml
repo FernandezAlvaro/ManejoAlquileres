@@ -42,7 +42,7 @@
             <tr>
                 <td>@gasto.Descripcion</td>
                 <td>@gasto.Tipo_gasto</td>
-                <td>@gasto.Monto_gasto €</td>
+                <td>@gasto.Monto_gasto.ToString("N2") €</td>
                 <td>@gasto.Fecha_pago.ToShortDateString()</td>
                 <td>@(gasto.Repercutible ? "Sí" : "No")</td>
                 <td>

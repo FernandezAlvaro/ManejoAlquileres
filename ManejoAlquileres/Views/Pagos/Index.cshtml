@@ -42,7 +42,7 @@
                     <tr class="@rowClass">
                         <td>@pago.Direccion_propiedad</td>
                         <td>@pago.Fecha_pago_programada.ToString("yyyy-MM-dd")</td>
-                        <td>@pago.Monto_pago.ToString("C")</td>
+                        <td>@pago.Monto_pago.ToString("F2") €</td>
                         <td>@estadoTexto</td>
                         <td class="d-flex gap-1">
                             <a asp-action="Editar" asp-route-id="@pago.Id_pago" class="btn btn-sm btn-primary">Editar</a>
@@ -94,7 +94,7 @@
                     <tr class="@rowClass">
                         <td>@pago.Direccion_propiedad</td>
                         <td>@pago.Fecha_pago_programada.ToString("yyyy-MM-dd")</td>
-                        <td>@pago.Monto_pago.ToString("C")</td>
+                        <td>@pago.Monto_pago.ToString("F2") €</td>
                         <td>@estadoTexto</td>
                         <td>
                             <a asp-action="Ver" asp-route-id="@pago.Id_pago" class="btn btn-sm btn-primary">Ver</a>

@@ -124,6 +124,6 @@ namespace ManejoAlquileres.Service
                 .Where(p => p.Id_contrato== contratoId)
                 .ToListAsync();
         }
-
+        //public async Task<Pago> ObtenerPago
     }
 }

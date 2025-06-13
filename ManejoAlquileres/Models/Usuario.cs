@@ -41,6 +41,7 @@ namespace ManejoAlquileres.Models
 
         [Required]
         [StringLength(20)]
+        [Display(Name = "Información bancaria")]
         public string Informacion_bancaria { get; set; }
 
         public List<ContratoInquilino> ContratosComoInquilino { get; set; }

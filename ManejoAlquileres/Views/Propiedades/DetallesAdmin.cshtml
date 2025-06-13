@@ -17,19 +17,19 @@
     <dd class="col-sm-8">@Model.NumHabitaciones</dd>
 
     <dt class="col-sm-4">Valor Catastral Piso</dt>
-    <dd class="col-sm-8">@Model.ValorCatastralPiso.ToString("N2") €</dd>
+    <dd class="col-sm-8">@Model.ValorCatastralPiso.ToString("F2") €</dd>
 
     <dt class="col-sm-4">Valor Catastral Terreno</dt>
-    <dd class="col-sm-8">@Model.ValorCatastralTerreno.ToString("N2") €</dd>
+    <dd class="col-sm-8">@Model.ValorCatastralTerreno.ToString("F2") €</dd>
 
     <dt class="col-sm-4">Fecha Adquisición</dt>
     <dd class="col-sm-8">@Model.FechaAdquisicion.ToShortDateString()</dd>
 
     <dt class="col-sm-4">Valor Adquisición</dt>
-    <dd class="col-sm-8">@Model.ValorAdquisicion.ToString("N2") €</dd>
+    <dd class="col-sm-8">@Model.ValorAdquisicion.ToString("F2") €</dd>
 
     <dt class="col-sm-4">Valor Adquisición Total</dt>
-    <dd class="col-sm-8">@Model.ValorAdquisicionTotal.ToString("N2") €</dd>
+    <dd class="col-sm-8">@Model.ValorAdquisicionTotal.ToString("F2") €</dd>
 
     <dt class="col-sm-4">Estado</dt>
     <dd class="col-sm-8">@(Model.EstadoPropiedad ? "Disponible" : "No disponible")</dd>
@@ -42,7 +42,7 @@
         <ul>
             @foreach (var u in Model.PorcentajesUsuarios)
             {
-                <li><strong>@u.NIF - @u.NombreCompleto:</strong> @($"{u.Porcentaje:P}")</li>
+                <li><strong>@u.NIF - @u.NombreCompleto:</strong> @($"{u.Porcentaje}%")</li>
             }
         </ul>
     </dd>

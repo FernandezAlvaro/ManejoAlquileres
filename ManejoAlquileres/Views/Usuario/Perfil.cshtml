@@ -1,0 +1,36 @@
+﻿@model ManejoAlquileres.Models.Usuario
+
+@{
+    ViewData["Title"] = "Perfil de Usuario";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Perfil de Usuario</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Nombre</dd>
+
+                <dt class="col-sm-3">Apellidos</dt>
+                <dd class="col-sm-9">@Model.Apellidos</dd>
+
+                <dt class="col-sm-3">NIF</dt>
+                <dd class="col-sm-9">@Model.NIF</dd>
+
+                <dt class="col-sm-3">Dirección</dt>
+                <dd class="col-sm-9">@Model.Direccion</dd>
+
+                <dt class="col-sm-3">Teléfono</dt>
+                <dd class="col-sm-9">@Model.Telefono</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Información bancaria</dt>
+                <dd class="col-sm-9">@Model.Informacion_bancaria</dd>
+            </dl>
+        </div>
+    </div>
+</div>

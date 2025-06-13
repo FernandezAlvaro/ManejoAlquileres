@@ -42,7 +42,7 @@
         <ul>
             @foreach (var u in Model.PorcentajesUsuarios)
             {
-                <li><strong>@u.NIF - @u.NombreCompleto:</strong> @($"{u.Porcentaje / 100:P}")</li>
+                <li><strong>@u.NIF - @u.NombreCompleto:</strong> @($"{u.Porcentaje:P}")</li>
             }
         </ul>
     </dd>

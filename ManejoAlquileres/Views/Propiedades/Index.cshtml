@@ -51,7 +51,7 @@
                                 <td>@propiedad.ReferenciaCatastral</td>
                                 <td>@(propiedad.NumHabitaciones)</td>
                                 <td>@propiedad.ValorAdquisicion.ToString("N2")</td>
-                                <td>@($"{propiedad.PorcentajePropiedad / 100:P}")</td>
+                                <td>@($"{propiedad.PorcentajePropiedad:P}")</td>
                                 <td>@(propiedad.EstadoPropiedad ? "Disponible" : "No disponible")</td>
                                 <td class="text-center">
                                     <a asp-action="Detalles" asp-route-id="@propiedad.Id" class="btn btn-sm btn-info me-1">Ver</a>

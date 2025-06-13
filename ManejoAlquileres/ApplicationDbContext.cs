@@ -43,14 +43,14 @@ namespace ManejoAlquileres
                 .HasPrecision(18, 2);
             modelBuilder.Entity<Contrato>()
                 .Property(c => c.Porcentaje_incremento)
-                .HasPrecision(5, 4);
+                .HasPrecision(5, 2);
 
             modelBuilder.Entity<GastoInmueble>()
                 .Property(g => g.Monto_gasto)
                 .HasPrecision(18, 2);
             modelBuilder.Entity<GastoInmueble>()
                 .Property(g => g.Porcentaje_amortizacion)
-                .HasPrecision(5, 4);
+                .HasPrecision(5, 2);
 
             modelBuilder.Entity<Habitacion>()
                 .Property(h => h.Tamaño)
@@ -75,7 +75,7 @@ namespace ManejoAlquileres
 
             modelBuilder.Entity<PropiedadUsuario>()
                 .Property(pu => pu.PorcentajePropiedad)
-                .HasPrecision(5, 4);
+                .HasPrecision(5, 2);
 
 
             // Configuración de las claves primarias compuestas para las tablas intermedias

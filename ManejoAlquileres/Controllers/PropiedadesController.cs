@@ -107,7 +107,7 @@ namespace ManejoAlquileres.Controllers
                 }
 
                 decimal sumaPorcentajes = propiedadExistente.Usuarios.Sum(r => r.PorcentajePropiedad);
-                decimal nuevoPorcentaje = (decimal)(vm.PorcentajePropiedad / 100);
+                decimal nuevoPorcentaje = (decimal)(vm.PorcentajePropiedad);
 
                 if (sumaPorcentajes + nuevoPorcentaje > 1)
                 {
@@ -153,7 +153,7 @@ namespace ManejoAlquileres.Controllers
             {
                 PropiedadId = propiedadNueva.Id_propiedad,
                 UsuarioId = usuarioId,
-                PorcentajePropiedad = (decimal)(vm.PorcentajePropiedad / 100)
+                PorcentajePropiedad = (decimal)(vm.PorcentajePropiedad)
             };
 
             _context.PropiedadesUsuarios.Add(relacionNueva);
@@ -220,14 +220,14 @@ namespace ManejoAlquileres.Controllers
                 return View(vm);
             }
 
-            decimal nuevoPorcentaje = (decimal)(vm.PorcentajePropiedad / 100);
+            decimal nuevoPorcentaje = (decimal)(vm.PorcentajePropiedad);
             var sumaOtrosPorcentajes = propiedad.Usuarios
                 .Where(r => r.UsuarioId != usuarioId)
                 .Sum(r => r.PorcentajePropiedad);
 
             if (nuevoPorcentaje + sumaOtrosPorcentajes > 1)
             {
-                ModelState.AddModelError(nameof(vm.PorcentajePropiedad), $"La suma de porcentajes excede 100%. Actualmente está en {sumaOtrosPorcentajes * 100}% para otros usuarios.");
+                ModelState.AddModelError(nameof(vm.PorcentajePropiedad), $"La suma de porcentajes excede 100%. Actualmente está en {sumaOtrosPorcentajes}% para otros usuarios.");
                 return View(vm);
             }
 
@@ -465,7 +465,7 @@ namespace ManejoAlquileres.Controllers
 
             gasto.Id_gasto = await _generadorIdsService.GenerarIdUnicoAsync();
             gasto.Id_propiedad = propiedadId;
-            gasto.Porcentaje_amortizacion = gasto.Porcentaje_amortizacion / 100;
+            gasto.Porcentaje_amortizacion = gasto.Porcentaje_amortizacion;
 
             _context.GastosInmueble.Add(gasto);
             await _context.SaveChangesAsync();
@@ -540,7 +540,7 @@ namespace ManejoAlquileres.Controllers
                 Descripcion = propiedad.Descripcion,
                 Habitaciones = propiedad.Habitaciones,
                 GastosInmueble = propiedad.GastoInmueble,
-                PorcentajePropiedad = (double)(porcentajePropiedad * 100)
+                PorcentajePropiedad = (double)(porcentajePropiedad)
             };
         }
 
@@ -587,8 +587,26 @@ namespace ManejoAlquileres.Controllers
                 ModelState.AddModelError(nameof(vm.ReferenciaCatastral), "La referencia catastral ya está registrada.");
                 return View(vm);
             }
+            var sumaPorcentajes = vm.PorcentajesUsuarios.Sum(u => u.Porcentaje);
+            if (sumaPorcentajes > 100)
+            {
+                ModelState.AddModelError("", "La suma de los porcentajes de propiedad no puede superar el 100%.");
+                return View(vm);
+            }
 
             ActualizarPropiedadDesdeAdminViewModel(propiedad, vm);
+
+            _context.PropiedadesUsuarios.RemoveRange(propiedad.Usuarios);
+
+            
+            foreach (var u in vm.PorcentajesUsuarios)
+            {
+                propiedad.Usuarios.Add(new PropiedadUsuario
+                {
+                    UsuarioId = u.UsuarioId,
+                    PorcentajePropiedad = u.Porcentaje
+                });
+            }
 
             _context.Propiedades.Update(propiedad);
             await _context.SaveChangesAsync();

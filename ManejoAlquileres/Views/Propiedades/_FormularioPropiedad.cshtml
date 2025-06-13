@@ -59,7 +59,7 @@
             <input name="PorcentajePropiedad"
                    class="form-control"
                    type="number" min="0" max="100" step="0.01"
-                   value="@(Model?.PorcentajePropiedad * 100 ?? 0)" />
+                   value="@(Model?.PorcentajePropiedad ?? 0)" />
             <span asp-validation-for="PorcentajePropiedad" class="text-danger"></span>
         </div>
 

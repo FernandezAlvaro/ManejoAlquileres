@@ -71,6 +71,7 @@ builder.Services.AddScoped<IServicioPropiedades, ServicioPropiedades>();
 builder.Services.AddScoped<IGeneradorIdsService, GeneradorIdsService>();
 builder.Services.AddScoped<IContratoInquilino, ServicioContratoInquilino>();
 builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddScoped<IPropiedadUsuarioService, PropiedadUsuarioService>();
 
 // Registro para DinkToPdf (IMPORTANTE: después de cargar la DLL)
 builder.Services.AddSingleton<IConverter>(new SynchronizedConverter(new PdfTools()));

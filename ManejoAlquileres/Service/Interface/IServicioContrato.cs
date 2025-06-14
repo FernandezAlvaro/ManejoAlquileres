@@ -10,5 +10,6 @@ namespace ManejoAlquileres.Service.Interface
         Task Actualizar(Contrato contrato);
         Task Borrar(string id);
         Task<bool> Existe(string id);
+        Task<List<Contrato>> ObtenerContratosDelUsuario(string userId);
     }
 }

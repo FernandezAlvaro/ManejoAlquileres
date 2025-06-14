@@ -95,13 +95,13 @@ namespace ManejoAlquileres.Controllers
             List<Usuario> inquilinos = new();
             List<string> propietariosRelacionados = new();
 
-            // Validar propiedad seleccionada
             if (viewModel.Propiedad == null || string.IsNullOrWhiteSpace(viewModel.Propiedad.Id_propiedad))
             {
                 ModelState.AddModelError("Propiedad", "Debes seleccionar una propiedad válida.");
             }
             else
             {
+
                 propiedad = await _context.Propiedades
                     .FirstOrDefaultAsync(p => p.Id_propiedad == viewModel.Propiedad.Id_propiedad);
 
@@ -114,10 +114,8 @@ namespace ManejoAlquileres.Controllers
                 viewModel.Propiedad.Direccion = propiedad.Direccion;
             }
 
-            // Sólo si la propiedad es válida seguimos validando inquilinos y habitación
             if (propiedad != null)
             {
-                // Validar inquilinos seleccionados
                 if (viewModel.InquilinosSeleccionados == null || !viewModel.InquilinosSeleccionados.Any())
                 {
                     ModelState.AddModelError("Inquilino", "Debes seleccionar al menos un inquilino.");
@@ -134,13 +132,11 @@ namespace ManejoAlquileres.Controllers
                     }
                     else
                     {
-                        // Obtener propietarios relacionados a la propiedad
                         propietariosRelacionados = await _context.PropiedadesUsuarios
                             .Where(pu => pu.PropiedadId == propiedad.Id_propiedad)
                             .Select(pu => pu.UsuarioId)
                             .ToListAsync();
 
-                        // Validar que ningún inquilino sea propietario
                         if (inquilinos.Any(i => propietariosRelacionados.Contains(i.Id_usuario)))
                         {
                             ModelState.AddModelError("Inquilino", "No puedes asignar como inquilino a un propietario de la misma propiedad.");
@@ -148,7 +144,6 @@ namespace ManejoAlquileres.Controllers
                     }
                 }
 
-                // Validar habitación si fue seleccionada
                 if (viewModel.Habitacion?.Id_habitacion != null)
                 {
                     habitacion = await _context.Habitaciones
@@ -452,10 +447,9 @@ namespace ManejoAlquileres.Controllers
             if (!puedeEliminar)
                 return Forbid();
 
-            return View(contrato); // Confirmación
+            return View(contrato);
         }
 
-        // POST: Contratos/Eliminar/5
         [HttpPost, ActionName("Eliminar")]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -496,7 +490,7 @@ namespace ManejoAlquileres.Controllers
             {
                 "Semanal" => TimeSpan.FromDays(7),
                 "Dos Semanas" => TimeSpan.FromDays(14),
-                "Mensual" => TimeSpan.FromDays(30), // Puedes mejorar esto con fecha real del mes siguiente
+                "Mensual" => TimeSpan.FromDays(30),
                 "Trimestral" => TimeSpan.FromDays(90),
                 "Anual" => TimeSpan.FromDays(365),
                 _ => throw new ArgumentException("Periodicidad no válida")

@@ -1,54 +1,54 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+
+@{
     ViewData["Title"] = "Exportar";
+    var isAdmin = User.IsInRole("Administrador");
 }
 
-<h2>Exportar</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Exportar Datos</h2>
 
-<form asp-action="ExportarFiltrado" method="post" target="_blank">
-    <div class="form-group">
-        <label>Desde:</label>
-        <input type="date" name="desde" class="form-control" />
-    </div>
+    <form method="post" target="_blank">
+        <div class="mb-3">
+            <label for="entidad" class="form-label">Entidad</label>
+            <select name="entidad" class="form-control" required>
+                <option value="propiedades">Propiedades</option>
+                @if (isAdmin)
+                {
+                    <option value="usuarios">Usuarios</option>
+                }
+                <option value="gastosinmueble">Gastos Inmueble</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label>Hasta:</label>
-        <input type="date" name="hasta" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label for="formato" class="form-label">Formato</label>
+            <select name="formato" class="form-control" required>
+                <option value="excel">Excel</option>
+                <option value="pdf">PDF</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label>Estado:</label>
-        <select name="estado" class="form-control">
-            <option value="">Todos</option>
-            <option value="pagado">Pagado</option>
-            <option value="pendiente">Pendiente</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Tipo:</label>
-        <select name="tipo" class="form-control">
-            <option value="">Ambos</option>
-            <option value="pagar">Debo pagar</option>
-            <option value="recibir">Debo recibir</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Formato:</label>
-        <select name="formato" class="form-control">
-            <option value="excel">Excel</option>
-            <option value="pdf">PDF</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Entidad a exportar:</label>
-        <select name="entidad" class="form-control">
-            <option value="pagos" selected>Pagos</option>
-            <option value="propiedades">Propiedades</option>
-            <option value="usuarios">Usuarios</option>
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Exportar</button>
-</form>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="desde" class="form-label">Desde</label>
+                <input type="date" name="desde" class="form-control" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="hasta" class="form-label">Hasta</label>
+                <input type="date" name="hasta" class="form-control" />
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" name="accion" value="filtrado" formaction="@Url.Action("ExportarFiltrado")" class="btn btn-primary">
+                Exportar 
+            </button>
+            @if (isAdmin)
+                {
+            <button type="submit" name="accion" value="todo" formaction="@Url.Action("ExportarTodo")" class="btn btn-secondary">
+                Exportar todo
+            </button>
+                }
+        </div>
+    </form>
+</div>

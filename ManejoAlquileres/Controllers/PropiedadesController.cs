@@ -294,7 +294,6 @@ namespace ManejoAlquileres.Controllers
 
             if (propiedad.Usuarios.Count == 1)
             {
-                // Sólo hay esta relación: eliminar propiedad, gastos y habitaciones
                 _context.Habitaciones.RemoveRange(propiedad.Habitaciones);
                 _context.GastosInmueble.RemoveRange(propiedad.GastoInmueble);
                 _context.PropiedadesUsuarios.Remove(relacion);
@@ -302,7 +301,6 @@ namespace ManejoAlquileres.Controllers
             }
             else
             {
-                // Hay otras relaciones: sólo eliminar esta relación
                 _context.PropiedadesUsuarios.Remove(relacion);
             }
 
@@ -340,10 +338,9 @@ namespace ManejoAlquileres.Controllers
                 Descripcion = propiedad.Descripcion
             };
 
-            return View(vm); // => Esto debe abrir la vista "ConfirmarBorrado.cshtml"
+            return View(vm);
         }
 
-        // Acción para crear habitación (botón en la tabla propiedades)
         public async Task<IActionResult> CrearHabitacion(string propiedadId)
         {
             if (string.IsNullOrWhiteSpace(propiedadId))
@@ -365,10 +362,9 @@ namespace ManejoAlquileres.Controllers
 
             var habitacion = new Habitacion { Id_propiedad = propiedadId };
 
-            return View(habitacion); // Mostrar formulario para crear habitación
+            return View(habitacion);
         }
 
-        // POST: Crear habitación
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearHabitacion(Habitacion habitacion)
@@ -510,7 +506,6 @@ namespace ManejoAlquileres.Controllers
             return View(propiedadVMs);
         }
 
-        // Métodos auxiliares
         private bool EsAdmin()
         {
             var rol = _httpContextAccessor.HttpContext?.User.FindFirst("esAdministrador")?.Value;
@@ -737,7 +732,7 @@ namespace ManejoAlquileres.Controllers
                 NumHabitaciones = propiedad.numHabitaciones
             };
 
-            return View("VerDetalles", vm); // Asegúrate de que la vista esté en Views/Propiedades/
+            return View("VerDetalles", vm);
         }
         private static void ActualizarPropiedadDesdeViewModel(Propiedad propiedad, PropiedadViewModel vm)
         {

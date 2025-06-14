@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using ClosedXML.Excel;
+using ManejoAlquileres.Service;
 
 
 namespace ManejoAlquileres.Controllers
@@ -21,6 +22,9 @@ namespace ManejoAlquileres.Controllers
         private readonly IHtmlToPdfConverter _pdfConverter;
         private readonly IServicioUsuarios _servicioUsuarios;
         private readonly IServicioPropiedades _servicioPropiedades;
+        private readonly IPropiedadUsuarioService _propiedadUsuario;
+        private readonly IServicioGastoInmueble _servicioGastoInmueble;
+        private readonly IServicioContrato _servicioContrato;
 
         public HomeController(
             ILogger<HomeController> logger,
@@ -28,7 +32,10 @@ namespace ManejoAlquileres.Controllers
             IServicioPago servicioPago,
             IHtmlToPdfConverter pdfConverter,
             IServicioUsuarios servicioUsuarios,
-            IServicioPropiedades servicioPropiedades)
+            IServicioPropiedades servicioPropiedades,
+            IPropiedadUsuarioService propiedadUsuario,
+            IServicioGastoInmueble servicioGastoInmueble,
+            IServicioContrato servicioContrato)
         {
             _logger = logger;
             _config = config;
@@ -36,6 +43,9 @@ namespace ManejoAlquileres.Controllers
             _pdfConverter = pdfConverter;
             _servicioUsuarios = servicioUsuarios;
             _servicioPropiedades = servicioPropiedades;
+            _propiedadUsuario = propiedadUsuario;
+            _servicioGastoInmueble = servicioGastoInmueble;
+            _servicioContrato = servicioContrato;
         }
 
         [Authorize(Policy = "UsuarioAutenticado")]
@@ -69,24 +79,13 @@ namespace ManejoAlquileres.Controllers
                 descripcion = p.Descripcion,
                 monto = p.Monto_pago,
                 fecha = p.Fecha_pago_programada.ToString("dd/MM/yyyy"),
-                tipo = "Pago", 
+                tipo = "Pago",
                 archivo = p.Archivo_factura
             });
 
             ViewBag.EventosJson = JsonSerializer.Serialize(eventos);
             return View();
         }
-        //public IActionResult DescargarFactura(string idPago)
-        //{
-        //    var pago = _db.Pagos.Find(idPago);
-        //    if (pago == null)
-        //        return NotFound();
-
-        //    // Aquí generas el PDF (usando iTextSharp, PdfSharp, etc.)
-        //    var facturaPdf = GenerarFacturaPdf(pago);
-
-        //    return File(facturaPdf, "application/pdf", $"Factura_{pago.Id}.pdf");
-        //}
         [Authorize(Policy = "UsuarioAutenticado")]
         public IActionResult Privacy()
         {
@@ -99,8 +98,6 @@ namespace ManejoAlquileres.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        // Método auxiliar para verificar si el pago está realizado
         private bool EstaPagado(DateTime? fechaPagoReal) =>
             fechaPagoReal > new DateTime(1, 1, 1);
 
@@ -113,13 +110,10 @@ namespace ManejoAlquileres.Controllers
 
             var eventos = new List<object>();
 
-            // Obtener contratos donde es inquilino
             var contratosComoInquilino = await _servicioPago.ObtenerContratosPorInquilinoAsync(userId);
 
-            // Obtener contratos donde es propietario
             var contratosComoPropietario = await _servicioPago.ObtenerContratosPorPropietarioAsync(userId);
 
-            // Obtener pagos para contratos donde es inquilino (debe pagar)
             foreach (var contrato in contratosComoInquilino)
             {
                 var pagos = await _servicioPago.ObtenerPagosPorContratoAsync(contrato.Id_contrato);
@@ -127,7 +121,7 @@ namespace ManejoAlquileres.Controllers
                 {
                     title = $"{p.Monto_pago}€ - {p.Descripcion}",
                     start = p.Fecha_pago_programada.ToString("yyyy-MM-dd"),
-                    color = EstaPagado(p.Fecha_pago_real) ? "#66b266" : "#ff6666", // verde si pagado, rojo si pendiente
+                    color = EstaPagado(p.Fecha_pago_real) ? "#66b266" : "#ff6666",
                     descripcion = p.Descripcion,
                     monto = p.Monto_pago,
                     fecha = p.Fecha_pago_programada.ToString("dd/MM/yyyy"),
@@ -136,7 +130,6 @@ namespace ManejoAlquileres.Controllers
                 }));
             }
 
-            // Obtener pagos para contratos donde es propietario (debe recibir)
             foreach (var contrato in contratosComoPropietario)
             {
                 var pagos = await _servicioPago.ObtenerPagosPorContratoAsync(contrato.Id_contrato);
@@ -144,7 +137,7 @@ namespace ManejoAlquileres.Controllers
                 {
                     title = $"{p.Monto_pago}€ - {p.Descripcion}",
                     start = p.Fecha_pago_programada.ToString("yyyy-MM-dd"),
-                    color = EstaPagado(p.Fecha_pago_real) ? "#66b266" : "#3366cc", // verde si pagado, azul si pendiente
+                    color = EstaPagado(p.Fecha_pago_real) ? "#66b266" : "#3366cc",
                     descripcion = p.Descripcion,
                     monto = p.Monto_pago,
                     fecha = p.Fecha_pago_programada.ToString("dd/MM/yyyy"),
@@ -161,217 +154,248 @@ namespace ManejoAlquileres.Controllers
         {
             return View();
         }
-
+        [Authorize(Policy = "EsAdministrador")]
+        [HttpPost]
+        public async Task<IActionResult> ExportarTodo(string formato, string entidad)
+        {
+            if (string.IsNullOrEmpty(formato))
+                return BadRequest("Formato no especificado");
+            if (string.IsNullOrEmpty(entidad))
+                return BadRequest("Entidad no especificado");
+            switch (entidad.ToLower())
+            {
+                case "usuarios":
+                    {
+                        var usuarios = await _servicioUsuarios.ObtenerTodos();
+                        return GenerarArchivoUsuarios(usuarios, formato);
+                    }
+                case "propiedades":
+                    {
+                        var propiedades = await _servicioPropiedades.ObtenerTodas();
+                        return await GenerarArchivoPropiedadesAsync(propiedades, formato);
+                    }
+                case "gastosinmueble":
+                    {
+                        var gastos = await _servicioGastoInmueble.ObtenerTodos();
+                        return GenerarArchivoGastosInmueble(gastos, formato);
+                    }
+                default:
+                    return BadRequest("Entidad no soportada");
+            }
+        }
+        
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> ExportarFiltrado(DateTime? desde, DateTime? hasta, string estado, string tipo, string formato, string entidad)
+        public async Task<IActionResult> ExportarFiltrado(DateTime? desde, DateTime? hasta, string formato, string entidad)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            if (string.IsNullOrEmpty(formato))
+                return BadRequest("Formato no especificado");
+            if (string.IsNullOrEmpty(entidad))
+                return BadRequest("Entidad no especificado");
 
-            entidad ??= "pagos";
+            bool sinFiltro = !desde.HasValue && !hasta.HasValue;
 
-            if (entidad == "pagos")
+            switch (entidad.ToLower())
             {
-                var pagos = new List<Pago>();
-                var contratos = new List<Contrato>();
-
-                if (string.IsNullOrEmpty(tipo) || tipo == "pagar")
-                    contratos.AddRange(await _servicioPago.ObtenerContratosPorInquilinoAsync(userId));
-
-                if (string.IsNullOrEmpty(tipo) || tipo == "recibir")
-                    contratos.AddRange(await _servicioPago.ObtenerContratosPorPropietarioAsync(userId));
-
-                foreach (var contrato in contratos)
-                    pagos.AddRange(await _servicioPago.ObtenerPagosPorContratoAsync(contrato.Id_contrato));
-
-                // Aplicar filtros
-                if (desde.HasValue)
-                    pagos = pagos.Where(p => p.Fecha_pago_programada >= desde.Value).ToList();
-
-                if (hasta.HasValue)
-                    pagos = pagos.Where(p => p.Fecha_pago_programada <= hasta.Value).ToList();
-
-                if (estado == "pagado")
-                    pagos = pagos.Where(p => p.Fecha_pago_real.HasValue).ToList();
-                else if (estado == "pendiente")
-                    pagos = pagos.Where(p => !p.Fecha_pago_real.HasValue).ToList();
-
-                // Exportar
-                if (formato == "excel")
-                {
-                    using var workbook = new ClosedXML.Excel.XLWorkbook();
-                    var ws = workbook.Worksheets.Add("Pagos");
-
-                    ws.Cell(1, 1).Value = "Descripción";
-                    ws.Cell(1, 2).Value = "Monto (€)";
-                    ws.Cell(1, 3).Value = "Fecha Programada";
-                    ws.Cell(1, 4).Value = "Fecha Real";
-                    ws.Cell(1, 5).Value = "Estado";
-
-                    int row = 2;
-                    foreach (var p in pagos)
+                case "propiedades":
                     {
-                        ws.Cell(row, 1).Value = p.Descripcion ?? "Sin descripción";
-                        ws.Cell(row, 2).Value = p.Monto_pago;
-                        ws.Cell(row, 3).Value = p.Fecha_pago_programada.ToString("dd/MM/yyyy");
-                        ws.Cell(row, 4).Value = p.Fecha_pago_real?.ToString("dd/MM/yyyy") ?? "Pendiente";
-                        ws.Cell(row, 5).Value = p.Fecha_pago_real.HasValue ? "Pagado" : "Pendiente";
-                        row++;
+                        var propiedades = await _servicioPropiedades.ObtenerPropiedadesComoPropietarioAsync();
+
+                        if (desde.HasValue)
+                            propiedades = propiedades.Where(p => p.Fecha_adquisicion >= desde.Value).ToList();
+
+                        if (hasta.HasValue)
+                            propiedades = propiedades.Where(p => p.Fecha_adquisicion <= hasta.Value).ToList();
+
+                        return await GenerarArchivoPropiedadesAsync(propiedades, formato);
                     }
 
-                    using var stream = new MemoryStream();
-                    workbook.SaveAs(stream);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return File(stream.ToArray(),
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "PagosFiltrados.xlsx");
-                }
-                else if (formato == "pdf")
-                {
-                    var html = "<h1>Resumen de Pagos</h1><table border='1' cellpadding='5'>" +
-                               "<tr><th>Descripción</th><th>Monto</th><th>Fecha Programada</th><th>Fecha Real</th><th>Estado</th></tr>";
-
-                    foreach (var p in pagos)
+                case "gastosinmueble":
                     {
-                        html += $"<tr><td>{p.Descripcion ?? "Sin descripción"}</td><td>{p.Monto_pago}€</td><td>{p.Fecha_pago_programada:dd/MM/yyyy}</td><td>{(p.Fecha_pago_real?.ToString("dd/MM/yyyy") ?? "Pendiente")}</td><td>{(p.Fecha_pago_real.HasValue ? "Pagado" : "Pendiente")}</td></tr>";
+                        var gastos = await ObtenerGastosUsuario(userId);
+
+                        if (desde.HasValue)
+                            gastos = gastos.Where(g => g.Fecha_pago >= desde.Value).ToList();
+
+                        if (hasta.HasValue)
+                            gastos = gastos.Where(g => g.Fecha_pago <= hasta.Value).ToList();
+
+                        return GenerarArchivoGastosInmueble(gastos, formato);
                     }
 
-                    html += "</table>";
+                default:
+                    return BadRequest("Entidad no soportada");
+            }
+        }
+        private async Task<List<GastoInmueble>> ObtenerGastosUsuario(string userId)
+        {
+            var propiedadesUsuario = await _servicioPropiedades.ObtenerPropiedadesComoPropietarioAsync();
+            var idsPropiedades = propiedadesUsuario.Select(p => p.Id_propiedad).ToList();
+            return await _servicioGastoInmueble.ObtenerPorPropiedades(idsPropiedades);
+        }
 
-                    var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
-                    return File(pdfBytes, "application/pdf", "PagosFiltrados.pdf");
+        private FileResult GenerarArchivoUsuarios(IEnumerable<Usuario> usuarios, string formato)
+        {
+            if (formato == "excel")
+            {
+                using var workbook = new XLWorkbook();
+                var ws = workbook.Worksheets.Add("Usuarios");
+
+                ws.Cell(1, 1).Value = "Nombre";
+                ws.Cell(1, 2).Value = "Apellidos";
+                ws.Cell(1, 3).Value = "NIF";
+                ws.Cell(1, 4).Value = "Email";
+                ws.Cell(1, 5).Value = "Contraseña";
+
+                int row = 2;
+                foreach (var u in usuarios)
+                {
+                    ws.Cell(row, 1).Value = u.Nombre;
+                    ws.Cell(row, 2).Value = u.Apellidos;
+                    ws.Cell(row, 3).Value = u.NIF;
+                    ws.Cell(row, 4).Value = u.Email;
+                    ws.Cell(row, 5).Value = u.Contraseña;
+                    row++;
                 }
 
-                return BadRequest("Formato no soportado");
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Usuarios.xlsx");
+            }
+            else if (formato == "pdf")
+            {
+                var html = "<h1>Listado de Usuarios</h1><table border='1' cellpadding='5'>" +
+                           "<tr><th>Nombre</th><th>Apellidos</th><th>NIF</th><th>Email</th><th>Contraseña</th></tr>";
+
+                foreach (var u in usuarios)
+                {
+                    html += $"<tr><td>{u.Nombre}</td><td>{u.Apellidos}</td><td>{u.NIF}</td><td>{u.Email}</td><td>{u.Contraseña}</td></tr>";
+                }
+
+                html += "</table>";
+                var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
+                return File(pdfBytes, "application/pdf", "Usuarios.pdf");
             }
 
-            // --------------------------------------
-            // PROPIEDADES
-            // --------------------------------------
-            else if (entidad == "propiedades")
+            throw new InvalidOperationException("Formato no soportado");
+        }
+        private async Task<FileResult> GenerarArchivoPropiedadesAsync(IEnumerable<Propiedad> propiedades, string formato)
+        {
+            if (formato == "excel")
             {
-                var propiedades = await _servicioPropiedades.ObtenerPropiedadesComoPropietarioAsync();
+                using var workbook = new XLWorkbook();
+                var ws = workbook.Worksheets.Add("Propiedades");
 
-                // Filtros opcionales
-                if (desde.HasValue)
-                    propiedades = propiedades.Where(p => p.Fecha_adquisicion >= desde.Value).ToList();
+                ws.Cell(1, 1).Value = "Dirección";
+                ws.Cell(1, 2).Value = "Referencia catastral";
+                ws.Cell(1, 3).Value = "Número de habitaciones";
+                ws.Cell(1, 4).Value = "Propietarios";
+                ws.Cell(1, 5).Value = "Fecha de adquisición";
 
-                if (hasta.HasValue)
-                    propiedades = propiedades.Where(p => p.Fecha_adquisicion <= hasta.Value).ToList();
-
-                if (estado == "activo")
-                    propiedades = propiedades.Where(p => p.Estado_propiedad).ToList();
-                else if (estado == "inactivo")
-                    propiedades = propiedades.Where(p => !p.Estado_propiedad).ToList();
-
-                if (formato == "excel")
+                int row = 2;
+                foreach (var prop in propiedades)
                 {
-                    using var workbook = new ClosedXML.Excel.XLWorkbook();
-                    var ws = workbook.Worksheets.Add("Propiedades");
+                    ws.Cell(row, 1).Value = prop.Direccion;
+                    ws.Cell(row, 2).Value = prop.Referencia_catastral ?? "";
+                    ws.Cell(row, 3).Value = prop.numHabitaciones;
 
-                    ws.Cell(1, 1).Value = "Dirección";
-                    ws.Cell(1, 2).Value = "Referencia catastral";
-                    ws.Cell(1, 3).Value = "Número de habitaciones";
-                    ws.Cell(1, 4).Value = "Propietarios";
+                    prop.Usuarios = await _propiedadUsuario.GetByPropiedadIdAsync(prop.Id_propiedad);
+                    var propietarios = prop.Usuarios != null && prop.Usuarios.Any()
+                        ? string.Join(", ", prop.Usuarios.Select(pu => $"{pu.Usuario.Nombre} ({pu.PorcentajePropiedad}%)"))
+                        : "Sin propietario";
 
-                    int row = 2;
-                    foreach (var prop in propiedades)
-                    {
-                        ws.Cell(row, 1).Value = prop.Direccion;
-                        ws.Cell(row, 2).Value = prop.Referencia_catastral ?? "";
-                        ws.Cell(row, 3).Value = prop.numHabitaciones;
-
-                        var propietarios = prop.Usuarios != null && prop.Usuarios.Any()
-                            ? string.Join(", ", prop.Usuarios.Select(pu => $"{pu.Usuario.Nombre} ({pu.PorcentajePropiedad}%)"))
-                            : "Sin propietario";
-
-                        ws.Cell(row, 4).Value = propietarios;
-                        row++;
-                    }
-
-                    using var stream = new MemoryStream();
-                    workbook.SaveAs(stream);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return File(stream.ToArray(),
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "Propiedades.xlsx");
-                }
-                else if (formato == "pdf")
-                {
-                    var html = "<h1>Listado de Propiedades</h1><table border='1' cellpadding='5'>" +
-                               "<tr><th>Dirección</th><th>Referencia catastral</th><th>Número de habitaciones</th><th>Propietarios</th></tr>";
-
-                    foreach (var prop in propiedades)
-                    {
-                        var propietarios = prop.Usuarios != null && prop.Usuarios.Any()
-                            ? string.Join(", ", prop.Usuarios.Select(pu => $"{pu.Usuario.Nombre} ({pu.PorcentajePropiedad}%)"))
-                            : "Sin propietario";
-
-                        html += $"<tr><td>{prop.Direccion}</td><td>{prop.Referencia_catastral}</td><td>{prop.numHabitaciones}</td><td>{propietarios}</td></tr>";
-                    }
-
-                    html += "</table>";
-
-                    var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
-                    return File(pdfBytes, "application/pdf", "Propiedades.pdf");
+                    ws.Cell(row, 4).Value = propietarios;
+                    ws.Cell(row, 5).Value = prop.Fecha_adquisicion.ToString("dd/MM/yyyy");
+                    row++;
                 }
 
-                return BadRequest("Formato no soportado");
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Propiedades.xlsx");
             }
-            else if (entidad == "usuarios")
+            else if (formato == "pdf")
             {
-                var usuarios = await _servicioUsuarios.ObtenerTodos(); // O el método que uses
+                var html = "<h1>Listado de Propiedades</h1><table border='1' cellpadding='5'>" +
+                           "<tr><th>Dirección</th><th>Referencia catastral</th><th>Habitaciones</th><th>Propietarios</th><th>Fecha de adquisición</th></tr>";
 
-                if (formato == "excel")
+                foreach (var prop in propiedades)
                 {
-                    using var workbook = new ClosedXML.Excel.XLWorkbook();
-                    var ws = workbook.Worksheets.Add("Usuarios");
+                    prop.Usuarios = await _propiedadUsuario.GetByPropiedadIdAsync(prop.Id_propiedad);
+                    var propietarios = prop.Usuarios != null && prop.Usuarios.Any()
+                        ? string.Join(", ", prop.Usuarios.Select(pu => $"{pu.Usuario.Nombre} ({pu.PorcentajePropiedad}%)"))
+                        : "Sin propietario";
 
-                    ws.Cell(1, 1).Value = "Nombre";
-                    ws.Cell(1, 2).Value = "Apellidos";
-                    ws.Cell(1, 3).Value = "NIF";
-                    ws.Cell(1, 4).Value = "Email";
-                    ws.Cell(1, 5).Value = "Contraseña";
-
-                    int row = 2;
-                    foreach (var u in usuarios)
-                    {
-                        ws.Cell(row, 1).Value = u.Nombre;
-                        ws.Cell(row, 2).Value = u.Apellidos;
-                        ws.Cell(row, 3).Value = u.NIF;
-                        ws.Cell(row, 4).Value = u.Email;
-                        ws.Cell(row, 5).Value = u.Contraseña;
-                        row++;
-                    }
-
-                    using var stream = new MemoryStream();
-                    workbook.SaveAs(stream);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return File(stream.ToArray(),
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "Usuarios.xlsx");
-                }
-                else if (formato == "pdf")
-                {
-                    var html = "<h1>Listado de Usuarios</h1><table border='1' cellpadding='5'>" +
-                               "<tr><th>Nombre</th><th>Email</th><th>Rol</th></tr>";
-
-                    foreach (var u in usuarios)
-                    {
-                        html += $"<tr><td>{u.Nombre}</td><td>{u.Apellidos}</td><td>{u.NIF}</td><td>{u.Email}</td><td>{u.Contraseña}</td></tr>";
-                    }
-
-                    html += "</table>";
-
-                    var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
-                    return File(pdfBytes, "application/pdf", "Usuarios.pdf");
+                    html += $"<tr><td>{prop.Direccion}</td><td>{prop.Referencia_catastral}</td><td>{prop.numHabitaciones}</td><td>{propietarios}</td><td>{prop.Fecha_adquisicion}</td></tr>";
                 }
 
-                return BadRequest("Formato no soportado");
+                html += "</table>";
+                var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
+                return File(pdfBytes, "application/pdf", "Propiedades.pdf");
             }
 
-            return BadRequest("Entidad no soportada");
+            throw new InvalidOperationException("Formato no soportado");
+        }
+        private FileResult GenerarArchivoGastosInmueble(IEnumerable<GastoInmueble> gastos, string formato)
+        {
+            if (formato == "excel")
+            {
+                using var workbook = new XLWorkbook();
+                var ws = workbook.Worksheets.Add("Gastos Inmueble");
+
+                ws.Cell(1, 1).Value = "Tipo de Gasto";
+                ws.Cell(1, 2).Value = "Monto (€)";
+                ws.Cell(1, 3).Value = "Fecha de Pago";
+                ws.Cell(1, 4).Value = "Porcentaje Amortización (%)";
+                ws.Cell(1, 5).Value = "Repercutible";
+                ws.Cell(1, 6).Value = "Descripción";
+                ws.Cell(1, 7).Value = "Propiedad (Dirección)";
+
+                int row = 2;
+                foreach (var g in gastos)
+                {
+                    ws.Cell(row, 1).Value = g.Tipo_gasto;
+                    ws.Cell(row, 2).Value = g.Monto_gasto;
+                    ws.Cell(row, 3).Value = g.Fecha_pago.ToString("dd/MM/yyyy");
+                    ws.Cell(row, 4).Value = g.Porcentaje_amortizacion;
+                    ws.Cell(row, 5).Value = g.Repercutible ? "Sí" : "No";
+                    ws.Cell(row, 6).Value = g.Descripcion ?? "";
+                    ws.Cell(row, 7).Value = g.Propiedad?.Direccion ?? "N/A";
+                    row++;
+                }
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return File(stream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "GastosInmueble.xlsx");
+            }
+            else if (formato == "pdf")
+            {
+                var html = "<h1>Listado de Gastos Inmueble</h1><table border='1' cellpadding='5'>" +
+                           "<tr><th>Tipo de Gasto</th><th>Monto</th><th>Fecha de Pago</th><th>Amortización (%)</th><th>Repercutible</th><th>Descripción</th><th>Propiedad</th></tr>";
+
+                foreach (var g in gastos)
+                {
+                    html += $"<tr><td>{g.Tipo_gasto}</td><td>{g.Monto_gasto}€</td><td>{g.Fecha_pago:dd/MM/yyyy}</td><td>{g.Porcentaje_amortizacion}</td><td>{(g.Repercutible ? "Sí" : "No")}</td><td>{g.Descripcion}</td><td>{g.Propiedad?.Direccion ?? "N/A"}</td></tr>";
+                }
+
+                html += "</table>";
+                var pdfBytes = _pdfConverter.ConvertHtmlToPdf(html);
+                return File(pdfBytes, "application/pdf", "GastosInmueble.pdf");
+            }
+
+            throw new InvalidOperationException("Formato no soportado");
         }
     }
 }
+

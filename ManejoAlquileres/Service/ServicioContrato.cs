@@ -58,5 +58,32 @@ namespace ManejoAlquileres.Service
         {
             return await _context.Contratos.AnyAsync(c => c.Id_contrato == id);
         }
+
+        public async Task<List<Contrato>> ObtenerContratosDelUsuario(string userId)
+        {
+            var contratosInquilino = await _context.ContratosInquilinos
+                .Where(ci => ci.UsuarioId == userId)
+                .Include(ci => ci.Contrato)
+                    .ThenInclude(c => c.Pagos)
+                .Include(ci => ci.Contrato.Propietarios).ThenInclude(cp => cp.Usuario)
+                .Include(ci => ci.Contrato.Inquilinos).ThenInclude(ci => ci.Usuario)
+                .Include(ci => ci.Contrato.Propiedad)
+                .Include(ci => ci.Contrato.Habitacion)
+                .Select(ci => ci.Contrato)
+                .ToListAsync();
+
+            var contratosPropietario = await _context.ContratosPropietarios
+                .Where(cp => cp.UsuarioId == userId)
+                .Include(cp => cp.Contrato)
+                    .ThenInclude(c => c.Pagos)
+                .Include(cp => cp.Contrato.Propietarios).ThenInclude(cp => cp.Usuario)
+                .Include(cp => cp.Contrato.Inquilinos).ThenInclude(ci => ci.Usuario)
+                .Include(cp => cp.Contrato.Propiedad)
+                .Include(cp => cp.Contrato.Habitacion)
+                .Select(cp => cp.Contrato)
+                .ToListAsync();
+
+            return contratosInquilino.Concat(contratosPropietario).Distinct().ToList();
+        }
     }
 }

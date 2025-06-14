@@ -132,12 +132,11 @@ namespace ManejoAlquileres.Service
 
         public ArchivoExportado ExportarTodaBaseDeDatos(string formato)
         {
-            // Ejemplo: Exportar todas las tablas importantes en un Excel con pestañas
+            
             if (formato == "excel")
             {
                 using var workbook = new XLWorkbook();
 
-                // Usuarios
                 var usuarios = _context.Usuarios.ToList();
                 var wsUsuarios = workbook.Worksheets.Add("Usuarios");
                 wsUsuarios.Cell(1, 1).Value = "ID Usuario";
@@ -159,7 +158,6 @@ namespace ManejoAlquileres.Service
                     rowU++;
                 }
 
-                // Propiedades
                 var propiedades = _context.Propiedades.ToList();
                 var wsPropiedades = workbook.Worksheets.Add("Propiedades");
                 wsPropiedades.Cell(1, 1).Value = "ID Propiedad";
@@ -175,7 +173,6 @@ namespace ManejoAlquileres.Service
                     rowP++;
                 }
 
-                // Agrega más hojas para otras entidades si quieres
 
                 using var stream = new MemoryStream();
                 workbook.SaveAs(stream);

@@ -8,5 +8,6 @@ namespace ManejoAlquileres.Service.Interface
         Task<List<ContratoPropietario>> GetByContratoIdAsync(string contratoId);
         Task AddAsync(ContratoPropietario propietario);
         Task DeleteAsync(string contratoId, string usuarioId);
+        Task DeleteByContratoIdAsync(string contratoId);
     }
 }

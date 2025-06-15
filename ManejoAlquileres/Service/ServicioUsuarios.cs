@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Dapper;
 using ManejoAlquileres.Models;
+using ManejoAlquileres.Models.Helpers;
 using ManejoAlquileres.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
@@ -84,5 +85,24 @@ namespace ManejoAlquileres.Service
         {
             return await _context.Usuarios.ToListAsync();
         }
+
+        public async Task<List<Usuario>> ObtenerPorListaIds(List<string> ids)
+        {
+            return await _context.Usuarios
+                .Where(u => ids.Contains(u.Id_usuario))
+                .ToListAsync();
+        }
+        public async Task<List<UsuarioViewModel>> ObtenerUsuariosConNombreCompleto()
+        {
+            return await _context.Usuarios
+                .Select(u => new UsuarioViewModel
+                {
+                    Id_usuario = u.Id_usuario,
+                    NIF = u.NIF,
+                    NombreCompleto = $"{u.NIF} - {u.Nombre} {u.Apellidos}"
+                })
+                .ToListAsync();
+        }
+
     }
 }

@@ -28,6 +28,13 @@ namespace ManejoAlquileres.Service
                 .Include(ci => ci.Usuario)
                 .ToListAsync();
         }
+        public async Task<List<ContratoInquilino>> GetByUsuarioIdAsync(string usuarioId)
+        {
+            return await _context.ContratosInquilinos
+                .Where(ci => ci.Usuario.Id_usuario == usuarioId)
+                .Include(ci => ci.Contrato)
+                .ToListAsync();
+        }
 
         public async Task AddAsync(ContratoInquilino inquilino)
         {

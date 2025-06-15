@@ -68,5 +68,17 @@ namespace ManejoAlquileres.Service
                 .Include(h => h.Contratos)
                 .FirstOrDefaultAsync(h => h.Id_habitacion == id);
         }
+        public async Task<Habitacion> ObtenerHabitacionConSuIdyPropiedadId(string idHabitación, string idPropiedad)
+        {
+            return await _context.Habitaciones
+                .Where(h => idHabitación.Equals(h.Id_habitacion) && idPropiedad.Equals(h.Id_propiedad))
+                .FirstOrDefaultAsync();
+        }
+        public async Task<List<Habitacion>> ObtenerPorListaIds(List<string> ids)
+        {
+            return await _context.Habitaciones
+                .Where(h => ids.Contains(h.Id_habitacion))
+                .ToListAsync();
+        }
     }
 }

@@ -13,5 +13,7 @@ namespace ManejoAlquileres.Service.Interface
         Task<Habitacion> ObtenerConDetalles(string id);
         Task<bool> Existe(string id);
         Task<List<Habitacion>> ObtenerPorPropiedad(string propiedadId);
+        Task<Habitacion> ObtenerHabitacionConSuIdyPropiedadId(string idHabitación, string idPropiedad);
+        Task<List<Habitacion>> ObtenerPorListaIds(List<string> ids);
     }
 }

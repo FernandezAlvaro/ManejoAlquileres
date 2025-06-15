@@ -1,4 +1,5 @@
 ﻿using ManejoAlquileres.Models;
+using ManejoAlquileres.Models.Helpers;
 
 namespace ManejoAlquileres.Service.Interface
 {
@@ -12,5 +13,7 @@ namespace ManejoAlquileres.Service.Interface
         Task<bool> Existe(string email, string id = null);
         Task<string> ObtenerUsuarioId();
         Task<List<Usuario>> ObtenerUsuarios();
+        Task<List<Usuario>> ObtenerPorListaIds(List<string> ids);
+        Task<List<UsuarioViewModel>> ObtenerUsuariosConNombreCompleto();
     }
 }

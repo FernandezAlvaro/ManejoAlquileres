@@ -85,5 +85,24 @@ namespace ManejoAlquileres.Service
 
             return contratosInquilino.Concat(contratosPropietario).Distinct().ToList();
         }
+        public async Task<Contrato> Eliminar(string id)
+        {
+            var contrato = await _context.Contratos
+                .Include(c => c.Propiedad)
+                .Include(c => c.Habitacion)
+                .Include(c => c.Inquilinos).ThenInclude(ci => ci.Usuario)
+                .Include(c => c.Propietarios).ThenInclude(cp => cp.Usuario)
+                .Include(c => c.Pagos)
+                .FirstOrDefaultAsync(c => c.Id_contrato == id);
+
+            if (contrato != null)
+            {
+                _context.Contratos.Remove(contrato);
+                await _context.SaveChangesAsync();
+            }
+
+            return contrato;
+        }
+
     }
 }

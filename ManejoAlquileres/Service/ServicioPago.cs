@@ -81,6 +81,8 @@ namespace ManejoAlquileres.Service
                     .ThenInclude(c => c.Inquilinos)
                 .Include(p => p.Contrato)
                     .ThenInclude(c => c.Propietarios)
+                .Include(p => p.Contrato)
+                    .ThenInclude(c => c.Propiedad)
                 .Select(p => new PagoConContratoDTO
                 {
                     Id_pago = p.Id_pago,
@@ -95,11 +97,12 @@ namespace ManejoAlquileres.Service
                     Fecha_inicio_contrato = p.Contrato.Fecha_inicio,
                     Fecha_fin_contrato = p.Contrato.Fecha_fin,
 
-                    Id_inquilino = p.Contrato.Inquilinos.FirstOrDefault().UsuarioId,
-                    Id_duenio = p.Contrato.Propietarios.FirstOrDefault().UsuarioId
+                    Id_inquilinos = p.Contrato.Inquilinos.Select(i => i.UsuarioId).ToList(),
+                    Id_duenios = p.Contrato.Propietarios.Select(d => d.UsuarioId).ToList()
                 })
                 .ToListAsync();
         }
+
         public async Task<List<Contrato>> ObtenerContratosPorInquilinoAsync(string usuarioId)
         {
             return await _context.Contratos

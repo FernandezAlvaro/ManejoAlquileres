@@ -14,9 +14,7 @@
         public DateTime Fecha_inicio_contrato { get; set; }
         public DateTime Fecha_fin_contrato { get; set; }
 
-        public string Id_inquilino { get; set; }
-        List<string> _id_inquilinos { get; set; }
-        public string Id_duenio { get; set; }
-        List<string> _id_duenos { get; set; }
+        public List<string> Id_inquilinos { get; set; }
+        public List<string> Id_duenios { get; set; }
     }
 }

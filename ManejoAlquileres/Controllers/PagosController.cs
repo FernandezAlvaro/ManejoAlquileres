@@ -30,14 +30,15 @@ namespace ManejoAlquileres.Controllers
             var pagos = await _servicioPago.ObtenerPagosConDatosContrato();
 
             var pagosComoInquilino = pagos
-                .Where(p => p.Id_inquilino == usuarioActualId)
+                .Where(p => p.Id_inquilinos.Contains(usuarioActualId))
                 .OrderBy(p => p.Direccion_propiedad)
                 .ToList();
 
             var pagosComoPropietario = pagos
-                .Where(p => p.Id_duenio == usuarioActualId)
+                .Where(p => p.Id_duenios.Contains(usuarioActualId))
                 .OrderBy(p => p.Direccion_propiedad)
                 .ToList();
+
 
             var modelo = new PagosSeparadosDTO
             {
@@ -86,6 +87,16 @@ namespace ManejoAlquileres.Controllers
                 pagoOriginal.Descripcion = pagoEdit.Descripcion;
                 if (archivoFacturaArchivo != null && archivoFacturaArchivo.Length > 0)
                 {
+                    // 🧹 ELIMINAR ARCHIVO ANTERIOR
+                    if (!string.IsNullOrEmpty(pagoOriginal.Archivo_factura))
+                    {
+                        var archivoAnteriorPath = Path.Combine(_webHostEnvironment.WebRootPath, pagoOriginal.Archivo_factura);
+                        if (System.IO.File.Exists(archivoAnteriorPath))
+                        {
+                            System.IO.File.Delete(archivoAnteriorPath);
+                        }
+                    }
+
                     var uploadsPath = Path.Combine(_webHostEnvironment.WebRootPath, "facturas");
                     Directory.CreateDirectory(uploadsPath);
 
